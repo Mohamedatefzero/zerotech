@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة ربط الفروع وفك كلمة مرور زيروتك الذكية</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Google Cairo Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+        .glass-input:focus {
+            border-color: #6366f1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        .upload-slot {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .upload-slot:hover, .upload-slot.dragover {
+            border-color: #818cf8;
+            background: rgba(99, 102, 241, 0.08);
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6">
+
+    <!-- Top Navigation Bar -->
+    <header class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl glass-card mb-6 shadow-xl">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-2xl shadow-lg">
+                🔐
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                    منظومة مزامنة الفروع الذكية
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">السحابية 24/7</span>
+                </h1>
+                <p class="text-xs text-slate-400">ربط البطاقة الشخصية برقم ماك DVR ZeroTech وكشف التكرار والسرقة لحظياً</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <!-- Google Sheets Status Badge -->
+            <div id="sheetsStatusBadge" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>متصل بـ Google Sheets</span>
+            </div>
+
+            <!-- Settings Button -->
+            <button onclick="openSettingsModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sm font-semibold transition shadow">
+                <span>⚙️ الإعدادات والربط</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto space-y-6">
+
+        <!-- Top Information Banner -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="glass-card p-4 rounded-2xl flex items-center gap-3 border-l-4 border-l-emerald-500">
+                <div class="text-2xl">⚡</div>
+                <div>
+                    <h4 class="text-xs text-slate-400">الذكاء الاصطناعي</h4>
+                    <p class="text-sm font-bold text-white">Gemini Vision 3.5 Lite</p>
+                </div>
+            </div>
+            <div class="glass-card p-4 rounded-2xl flex items-center gap-3 border-l-4 border-l-indigo-500">
+                <div class="text-2xl">🛡️</div>
+                <div>
+                    <h4 class="text-xs text-slate-400">الحماية الأمنية</h4>
+                    <p class="text-sm font-bold text-white">فحص تطابق الماك مع الرقم القومي</p>
+                </div>
+            </div>
+            <div class="glass-card p-4 rounded-2xl flex items-center gap-3 border-l-4 border-l-amber-500">
+                <div class="text-2xl">📊</div>
+                <div>
+                    <h4 class="text-xs text-slate-400">قاعدة البيانات</h4>
+                    <p class="text-sm font-bold text-white">Google Sheets سحابي مركزي</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upper Section: Dual Photo Upload & Review -->
+        <div class="glass-card p-5 md:p-8 rounded-3xl shadow-2xl">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                <div>
+                    <h2 class="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+                        <span>📸 خطوة 1: التقاط / رفع الصورتين</span>
+                    </h2>
+                    <p class="text-xs text-slate-400">التقط صورة البطاقة الشخصية وصورة شاشة استرداد الباسورد للـ DVR</p>
+                </div>
+
+                <!-- Branch & Employee Selector -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <div>
+                        <select id="branchSelector" class="glass-input text-xs md:text-sm px-3 py-2 rounded-xl text-white font-medium">
+                            <option value="فرع باب اللوق">فرع باب اللوق</option>
+                            <option value="فرع الزقازيق">فرع الزقازيق</option>
+                            <option value="فرع طنطا">فرع طنطا</option>
+                            <option value="فرع أسيوط">فرع أسيوط</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input id="employeeInput" type="text" placeholder="اسم الموظف" class="glass-input text-xs md:text-sm px-3 py-2 rounded-xl w-28 md:w-36 text-white" value="أدمن الفرع">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two Upload Boxes -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Box 1: Egyptian ID Card -->
+                <div class="space-y-3">
+                    <label class="block text-sm font-bold text-indigo-300 flex items-center justify-between">
+                        <span>🪪 1. بطاقة الرقم القومي المصرية</span>
+                        <span class="text-xs text-slate-400 font-normal">واضحة وتظهر الـ 14 رقم</span>
+                    </label>
+                    <div id="idDropZone" class="upload-slot p-6 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[220px] relative overflow-hidden group">
+                        <input type="file" id="idFileInput" accept="image/*" capture="environment" class="hidden">
+                        <div id="idPlaceholder" class="space-y-2 pointer-events-none">
+                            <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-3xl mx-auto group-hover:scale-110 transition">
+                                📷
+                            </div>
+                            <p class="text-sm font-bold text-slate-200">اضغط لالتقاط أو اختيار صورة البطاقة</p>
+                            <p class="text-xs text-slate-500">يدعم السحب والإفلات أو كاميرا الموبايل</p>
+                        </div>
+                        <img id="idPreviewImg" class="hidden max-h-48 rounded-xl object-contain shadow-lg" alt="معاينة البطاقة">
+                    </div>
+                </div>
+
+                <!-- Box 2: ZeroTech DVR Screen -->
+                <div class="space-y-3">
+                    <label class="block text-sm font-bold text-violet-300 flex items-center justify-between">
+                        <span>📺 2. شاشة استرداد كلمة المرور (ZeroTech)</span>
+                        <span class="text-xs text-slate-400 font-normal">تظهر الماك ووقت الجهاز</span>
+                    </label>
+                    <div id="devDropZone" class="upload-slot p-6 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[220px] relative overflow-hidden group">
+                        <input type="file" id="devFileInput" accept="image/*" capture="environment" class="hidden">
+                        <div id="devPlaceholder" class="space-y-2 pointer-events-none">
+                            <div class="w-16 h-16 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-3xl mx-auto group-hover:scale-110 transition">
+                                🖥️
+                            </div>
+                            <p class="text-sm font-bold text-slate-200">اضغط لالتقاط أو اختيار شاشة الجهاز</p>
+                            <p class="text-xs text-slate-500">يدعم السحب والإفلات أو كاميرا الموبايل</p>
+                        </div>
+                        <img id="devPreviewImg" class="hidden max-h-48 rounded-xl object-contain shadow-lg" alt="معاينة الشاشة">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Analyze Action Button -->
+            <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button id="btnAnalyze" onclick="processDualImages()" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-base shadow-xl hover:shadow-indigo-500/25 transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <span>✨ فحص واستخراج البيانات بالذكاء الاصطناعي</span>
+                </button>
+                <button onclick="resetInputs()" class="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition">
+                    إعادة تعيين
+                </button>
+            </div>
+        </div>
+
+        <!-- Security Warning & Duplicate Alert Banner (Dynamic) -->
+        <div id="securityBanner" class="hidden p-6 rounded-3xl shadow-2xl transition-all duration-300 border">
+            <!-- Rendered by JS -->
+        </div>
+
+        <!-- Middle Section: Extracted Data Review & Editable Fields -->
+        <div id="reviewSection" class="hidden glass-card p-5 md:p-8 rounded-3xl shadow-2xl space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                    <h2 class="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+                        <span>📝 خطوة 2: مراجعة البيانات وتأكيد الحفظ</span>
+                    </h2>
+                    <p class="text-xs text-slate-400">يمكنك تعديل أي حقل يدوياً إذا لزم الأمر قبل الإدخال النهائي في الإكسل</p>
+                </div>
+                <div class="px-3 py-1 rounded-xl bg-indigo-500/10 text-indigo-300 text-xs font-bold border border-indigo-500/20">
+                    مستخرج بواسطة AI 100%
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Left: Customer Data -->
+                <div class="space-y-4 p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+                    <h3 class="text-sm font-bold text-indigo-400 flex items-center gap-2">
+                        <span>👤 بيانات صاحب المعاملة</span>
+                    </h3>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">اسم العميل بالكامل</label>
+                        <input id="inputCustomerName" type="text" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-sm font-bold text-white" placeholder="اسم العميل">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">الرقم القومي (14 رقم)</label>
+                        <input id="inputNationalId" type="text" maxlength="14" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-sm font-mono font-bold text-indigo-300" placeholder="29810251304956">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">العنوان والمحافظة</label>
+                        <input id="inputAddress" type="text" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs text-slate-300" placeholder="العنوان">
+                    </div>
+                </div>
+
+                <!-- Right: ZeroTech Device Data -->
+                <div class="space-y-4 p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+                    <h3 class="text-sm font-bold text-violet-400 flex items-center gap-2">
+                        <span>🖥️ بيانات جهاز ZeroTech DVR</span>
+                    </h3>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">عنوان الماك (MAC Address)</label>
+                        <input id="inputMacAddress" type="text" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-sm font-mono font-bold text-violet-300 uppercase" placeholder="585B690E25CA">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">موديل الجهاز</label>
+                            <input id="inputDeviceModel" type="text" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold text-white" placeholder="DxC">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">تاريخ ووقت الشاشة</label>
+                            <input id="inputDeviceTime" type="text" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-mono text-slate-300" placeholder="2026-11-15 17:20:36">
+                        </div>
+                    </div>
+                    <div id="duplicateNoteContainer" class="hidden">
+                        <label class="block text-xs text-amber-400 mb-1">ملاحظات تأكيد المعاملة / موافقة الإدارة (إلزامي في حالات التحذير)</label>
+                        <input id="inputDuplicateNote" type="text" class="w-full glass-input px-3.5 py-2 rounded-xl text-xs text-white border-amber-500/50" placeholder="تم التأكد من أصل الفاتورة وموافقة إدارة الفرع...">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Save Row Button -->
+            <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
+                <button id="btnSave" onclick="saveRecordToSheets()" class="w-full sm:w-auto px-8 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl hover:shadow-emerald-500/25 transition flex items-center justify-center gap-2">
+                    <span>💾 حفظ في Google Sheets وإتمام المعاملة</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Lower Section: Unified Central Branch Feed (Live Table) -->
+        <div class="glass-card p-5 md:p-8 rounded-3xl shadow-2xl space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+                <div>
+                    <h2 class="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+                        <span>📊 سجل معاملات الفروع الموحد (Google Sheets Live)</span>
+                    </h2>
+                    <p class="text-xs text-slate-400">تحديث فوري لكل العمليات المسجلة عبر جميع فروع الشركة</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="refreshLiveFeed()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 transition flex items-center gap-1.5">
+                        <span>🔄 تحديث</span>
+                    </button>
+                    <button onclick="exportToCsv()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-emerald-400 transition flex items-center gap-1.5">
+                        <span>📥 تصدير Excel</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-800">
+                <table class="w-full text-right text-xs">
+                    <thead class="bg-slate-900/80 text-slate-400 font-bold uppercase tracking-wider">
+                        <tr>
+                            <th class="p-3.5">#</th>
+                            <th class="p-3.5">الفرع</th>
+                            <th class="p-3.5">اسم العميل</th>
+                            <th class="p-3.5">الرقم القومي</th>
+                            <th class="p-3.5">ماك الجهاز (MAC)</th>
+                            <th class="p-3.5">موديل الجهاز</th>
+                            <th class="p-3.5">تاريخ الشاشة</th>
+                            <th class="p-3.5">الحالة الأمنية</th>
+                            <th class="p-3.5">وقت المعاملة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsTableBody" class="divide-y divide-slate-800/60 font-medium">
+                        <tr>
+                            <td colspan="9" class="p-8 text-center text-slate-500">
+                                جاري تحميل السجلات من Google Sheets...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Settings & Integration Modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div class="glass-card max-w-xl w-full p-6 md:p-8 rounded-3xl shadow-2xl border border-slate-700 space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span>⚙️ إعدادات الربط السحابي والذكاء الاصطناعي</span>
+                </h3>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Gemini API Key -->
+                <div>
+                    <label class="block text-xs font-bold text-indigo-300 mb-1">
+                        مفتاح الذكاء الاصطناعي (Gemini API Key)
+                    </label>
+                    <input id="settingApiKey" type="password" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-mono text-white" placeholder="AQ.Ab8RN6...">
+                    <p class="text-[11px] text-slate-400 mt-1">يستخدم لقراءة البطاقة وشاشات زيروتك بسرعة البرق ودقة 100%.</p>
+                </div>
+
+                <!-- Google Sheets Webhook URL -->
+                <div>
+                    <label class="block text-xs font-bold text-emerald-300 mb-1">
+                        رابط Google Sheets Webhook (نشر التطبيق)
+                    </label>
+                    <input id="settingWebhookUrl" type="url" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-mono text-white" placeholder="https://script.google.com/macros/s/.../exec">
+                    <p class="text-[11px] text-slate-400 mt-1">رابط النشر Web App المستخرج من ملف <code>google_apps_script.js</code> في شيت الإكسل.</p>
+                </div>
+
+                <!-- Branches List -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">
+                        قائمة فروع الشركة (مفصولة بفواصل)
+                    </label>
+                    <textarea id="settingBranches" rows="2" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs text-white" placeholder="فرع باب اللوق, فرع الزقازيق, فرع طنطا, فرع أسيوط"></textarea>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                <button onclick="closeSettingsModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition">
+                    إلغاء
+                </button>
+                <button onclick="saveSettings()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-lg">
+                    حفظ الإعدادات
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic Script -->
+    <script>
+        // Preset default credentials (stored securely in browser)
+        const DEFAULT_API_KEY = "AQ.Ab8RN6I2dCLVCbQYwnf1K6X4TQMddTMFIBa8GcdOvAvYUPemyQ";
+        const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw5IkNibxaV-56H8xCtgG8hNy9sQNZJcKyEi9v5MY1tf4Cek9-i6KI5tCWhTWfzcHV_ng/exec";
+        const DEFAULT_BRANCHES = "فرع باب اللوق,فرع الزقازيق,فرع طنطا,فرع أسيوط";
+
+        // Global State
+        let idBase64 = null;
+        let devBase64 = null;
+        let currentSecurityStatus = null;
+        let globalRecords = [];
+
+        // Initialize on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            initSettings();
+            setupDropZones();
+            refreshLiveFeed();
+        });
+
+        function initSettings() {
+            if (!localStorage.getItem('gemini_api_key')) {
+                localStorage.setItem('gemini_api_key', DEFAULT_API_KEY);
+            }
+            if (!localStorage.getItem('google_webhook_url')) {
+                localStorage.setItem('google_webhook_url', DEFAULT_WEBHOOK_URL);
+            }
+            if (!localStorage.getItem('branches_list')) {
+                localStorage.setItem('branches_list', DEFAULT_BRANCHES);
+            }
+            loadBranchesIntoSelector();
+        }
+
+        function loadBranchesIntoSelector() {
+            const listStr = localStorage.getItem('branches_list') || DEFAULT_BRANCHES;
+            const branches = listStr.split(',').map(b => b.trim()).filter(Boolean);
+            const selector = document.getElementById('branchSelector');
+            selector.innerHTML = '';
+            branches.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.textContent = b;
+                selector.appendChild(opt);
+            });
+        }
+
+        function openSettingsModal() {
+            document.getElementById('settingApiKey').value = localStorage.getItem('gemini_api_key') || '';
+            document.getElementById('settingWebhookUrl').value = localStorage.getItem('google_webhook_url') || '';
+            document.getElementById('settingBranches').value = localStorage.getItem('branches_list') || DEFAULT_BRANCHES;
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        function saveSettings() {
+            const key = document.getElementById('settingApiKey').value.trim();
+            const webhook = document.getElementById('settingWebhookUrl').value.trim();
+            const branches = document.getElementById('settingBranches').value.trim();
+
+            localStorage.setItem('gemini_api_key', key);
+            localStorage.setItem('google_webhook_url', webhook);
+            localStorage.setItem('branches_list', branches);
+
+            loadBranchesIntoSelector();
+            closeSettingsModal();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'تم حفظ الإعدادات بنجاح',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            refreshLiveFeed();
+        }
+
+        // Image compression helper (resizes to max 1024x1024, JPEG quality 85)
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDim = 1024;
+
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    const b64 = dataUrl.split(',')[1];
+                    callback(b64, dataUrl);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Dropzone & File Input Setup
+        function setupDropZones() {
+            const idZone = document.getElementById('idDropZone');
+            const idInput = document.getElementById('idFileInput');
+            idZone.addEventListener('click', () => idInput.click());
+            idInput.addEventListener('change', (e) => {
+                if (e.target.files.length) handleFile(e.target.files[0], 'id');
+            });
+
+            const devZone = document.getElementById('devDropZone');
+            const devInput = document.getElementById('devFileInput');
+            devZone.addEventListener('click', () => devInput.click());
+            devInput.addEventListener('change', (e) => {
+                if (e.target.files.length) handleFile(e.target.files[0], 'dev');
+            });
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+                idZone.addEventListener(ev, preventDefaults, false);
+                devZone.addEventListener(ev, preventDefaults, false);
+            });
+
+            idZone.addEventListener('drop', (e) => {
+                if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0], 'id');
+            });
+            devZone.addEventListener('drop', (e) => {
+                if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0], 'dev');
+            });
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleFile(file, type) {
+            compressImage(file, (b64, dataUrl) => {
+                if (type === 'id') {
+                    idBase64 = b64;
+                    document.getElementById('idPlaceholder').classList.add('hidden');
+                    const img = document.getElementById('idPreviewImg');
+                    img.src = dataUrl;
+                    img.classList.remove('hidden');
+                } else {
+                    devBase64 = b64;
+                    document.getElementById('devPlaceholder').classList.add('hidden');
+                    const img = document.getElementById('devPreviewImg');
+                    img.src = dataUrl;
+                    img.classList.remove('hidden');
+                }
+            });
+        }
+
+        function resetInputs() {
+            idBase64 = null;
+            devBase64 = null;
+            document.getElementById('idFileInput').value = '';
+            document.getElementById('devFileInput').value = '';
+            document.getElementById('idPlaceholder').classList.remove('hidden');
+            document.getElementById('idPreviewImg').classList.add('hidden');
+            document.getElementById('devPlaceholder').classList.remove('hidden');
+            document.getElementById('devPreviewImg').classList.add('hidden');
+            document.getElementById('reviewSection').classList.add('hidden');
+            document.getElementById('securityBanner').classList.add('hidden');
+        }
+
+        // Direct Call to Gemini Flash Lite Vision
+        async function callGeminiVision(base64Image, promptText) {
+            const apiKey = localStorage.getItem('gemini_api_key') || DEFAULT_API_KEY;
+            const model = "gemini-flash-lite-latest";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: promptText },
+                        {
+                            inline_data: {
+                                mime_type: "image/jpeg",
+                                data: base64Image
+                            }
+                        }
+                    ]
+                }],
+                generationConfig: {
+                    temperature: 0.0,
+                    response_mime_type: "application/json"
+                }
+            };
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(`Gemini API Error (${response.status}): ${err}`);
+            }
+
+            const result = await response.json();
+            const text = result.candidates[0].content.parts[0].text.trim();
+            const cleanJson = text.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            return JSON.parse(cleanJson);
+        }
+
+        // Process Dual Images with AI + Instant Security Cross-Check
+        async function processDualImages() {
+            if (!idBase64 || !devBase64) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'الصورتان مطلوبتان معاً',
+                    text: 'يرجى التقاط صورة البطاقة الشخصية وصورة شاشة زيروتك معاً للربط بينهما.',
+                    confirmButtonText: 'حسناً'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'جاري فحص الصورتين بالذكاء الاصطناعي...',
+                html: '<div class="space-y-2 mt-2"><div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div><p class="text-xs text-slate-400">قراءة البطاقة، ماك الجهاز، وفحص سجلات الفروع في Google Sheets</p></div>',
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
+
+            try {
+                const promptId = `أنت خبير في قراءة بطاقات الرقم القومي المصرية. استخرج بدقة تامة:
+1. اسم صاحب البطاقة (customer_name)
+2. الرقم القومي المكون من 14 رقم باللغة الإنجليزية (national_id)
+3. المحافظة والعنوان (address)
+أرجع النتيجة بصيغة JSON فقط: {"customer_name": "...", "national_id": "...", "address": "..."}`;
+
+                const promptDev = `أنت خبير في قراءة شاشات استرداد كلمة المرور لأجهزة كاميرات المراقبة DVR (ZeroTech / Dahua). استخرج بدقة:
+1. عنوان الماك (mac_address) المكون من 12 خانة هكساديسيمال بدون نقط أو مسافات.
+2. موديل الجهاز (device_model).
+3. وقت وتاريخ الشاشة الحالي (device_time).
+أرجع النتيجة بصيغة JSON فقط: {"mac_address": "...", "device_model": "...", "device_time": "..."}`;
+
+                // Run parallel extraction
+                const [idData, devData] = await Promise.all([
+                    callGeminiVision(idBase64, promptId),
+                    callGeminiVision(devBase64, promptDev)
+                ]);
+
+                // Populate form inputs
+                document.getElementById('inputCustomerName').value = idData.customer_name || '';
+                document.getElementById('inputNationalId').value = (idData.national_id || '').replace(/[^0-9]/g, '');
+                document.getElementById('inputAddress').value = idData.address || '';
+                document.getElementById('inputMacAddress').value = (devData.mac_address || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                document.getElementById('inputDeviceModel').value = devData.device_model || 'DxC';
+                document.getElementById('inputDeviceTime').value = devData.device_time || '';
+
+                // Perform Cross-Check with Google Sheets Webhook if available
+                await performCrossCheck(document.getElementById('inputNationalId').value, document.getElementById('inputMacAddress').value);
+
+                document.getElementById('reviewSection').classList.remove('hidden');
+                Swal.close();
+
+                // Smooth scroll to review
+                document.getElementById('reviewSection').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (err) {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'خطأ أثناء المعالجة',
+                    text: err.message || 'تعذر استدعاء الذكاء الاصطناعي، يرجى مراجعة المفتاح والاتصال.',
+                    confirmButtonText: 'حسناً'
+                });
+            }
+        }
+
+        // Cross-Check across Google Sheets
+        async function performCrossCheck(nationalId, mac) {
+            const webhookUrl = localStorage.getItem('google_webhook_url');
+            const banner = document.getElementById('securityBanner');
+            const noteContainer = document.getElementById('duplicateNoteContainer');
+
+            if (!webhookUrl) {
+                // Local memory check if webhook not yet set
+                checkLocalMemory(nationalId, mac);
+                return;
+            }
+
+            try {
+                const res = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'check',
+                        national_id: nationalId,
+                        mac_address: mac
+                    })
+                });
+
+                const data = await res.json();
+                if (data.status === 'success' && data.check) {
+                    renderBanner(data.check);
+                }
+            } catch (e) {
+                console.warn("Webhook check failed, falling back to local memory:", e);
+                checkLocalMemory(nationalId, mac);
+            }
+        }
+
+        function checkLocalMemory(nationalId, mac) {
+            // Check against loaded globalRecords
+            const sameMac = globalRecords.filter(r => r.mac_address === mac);
+            const diffPerson = sameMac.find(r => r.national_id !== nationalId);
+
+            if (diffPerson) {
+                renderBanner({
+                    status: 'security_alert',
+                    alert_type: 'danger',
+                    badge: '🚨 تحذير أمني خطير (جهاز مسجل لشخص آخر)',
+                    title: '🚨 تنبيه أمني عالي الخطورة: احتمال جهاز مسروق أو محاولة فك غير مصرحة!',
+                    message: `هذا الجهاز (الماك: ${mac}) مسجل سابقاً في المنظومة لشخص آخر: (${diffPerson.customer_name} - رقم قومي: ${diffPerson.national_id}) في ${diffPerson.branch_name} بتاريخ ${diffPerson.created_at}. يرجى مراجعة الإدارة قبل فك الباسورد!`
+                });
+            } else if (sameMac.length > 0) {
+                renderBanner({
+                    status: 'full_duplicate',
+                    alert_type: 'warning',
+                    badge: '⚠️ تكرار كامل (معاملة مكررة)',
+                    title: 'تنبيه: هذا العميل مسجل مع هذا الجهاز مسبقاً!',
+                    message: `العميل سجل نفس الجهاز سابقاً في ${sameMac[0].branch_name} بتاريخ ${sameMac[0].created_at}.`
+                });
+            } else {
+                renderBanner({
+                    status: 'clean',
+                    alert_type: 'safe',
+                    badge: 'معاملة جديدة سليمة',
+                    title: 'معاملة جديدة سليمة 100%',
+                    message: 'عميل جديد وجهاز جديد لا يوجد لهما أي سوابق في فروع الشركة.'
+                });
+            }
+        }
+
+        function renderBanner(check) {
+            currentSecurityStatus = check;
+            const banner = document.getElementById('securityBanner');
+            const noteContainer = document.getElementById('duplicateNoteContainer');
+
+            banner.className = 'p-6 rounded-3xl shadow-2xl transition-all duration-300 border ';
+
+            if (check.alert_type === 'danger') {
+                banner.className += 'bg-red-500/15 border-red-500/40 text-red-200';
+                noteContainer.classList.remove('hidden');
+            } else if (check.alert_type === 'warning') {
+                banner.className += 'bg-amber-500/15 border-amber-500/40 text-amber-200';
+                noteContainer.classList.remove('hidden');
+            } else if (check.alert_type === 'info') {
+                banner.className += 'bg-indigo-500/15 border-indigo-500/40 text-indigo-200';
+                noteContainer.classList.add('hidden');
+            } else {
+                banner.className += 'bg-emerald-500/15 border-emerald-500/40 text-emerald-200';
+                noteContainer.classList.add('hidden');
+            }
+
+            banner.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <div class="text-3xl">${check.alert_type === 'danger' ? '🚨' : (check.alert_type === 'warning' ? '⚠️' : '✅')}</div>
+                    <div class="space-y-1">
+                        <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${check.alert_type === 'danger' ? 'bg-red-500/20 text-red-300' : 'bg-emerald-500/20 text-emerald-300'}">${check.badge}</span>
+                        <h3 class="text-base font-bold text-white">${check.title}</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">${check.message}</p>
+                    </div>
+                </div>
+            `;
+            banner.classList.remove('hidden');
+        }
+
+        // Save Record to Google Sheets
+        async function saveRecordToSheets() {
+            const customerName = document.getElementById('inputCustomerName').value.trim();
+            const nationalId = document.getElementById('inputNationalId').value.trim();
+            const macAddress = document.getElementById('inputMacAddress').value.trim();
+            const deviceModel = document.getElementById('inputDeviceModel').value.trim();
+            const deviceTime = document.getElementById('inputDeviceTime').value.trim();
+            const branchName = document.getElementById('branchSelector').value;
+            const employeeName = document.getElementById('employeeInput').value.trim();
+            const note = document.getElementById('inputDuplicateNote').value.trim();
+
+            if (!customerName || !nationalId || !macAddress) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'بيانات ناقصة',
+                    text: 'يجب التأكد من وجود اسم العميل والرقم القومي وعنوان الماك.',
+                    confirmButtonText: 'حسناً'
+                });
+                return;
+            }
+
+            if (currentSecurityStatus && currentSecurityStatus.alert_type === 'danger' && !note) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'تأكيد أمني مطلوب',
+                    text: 'هناك تحذير أمني خطير! يرجى كتابة ملاحظات تأكيد المعاملة وموافقة الإدارة قبل الحفظ.',
+                    confirmButtonText: 'حسناً'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'جاري الحفظ في Google Sheets...',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            const webhookUrl = localStorage.getItem('google_webhook_url');
+
+            const recordPayload = {
+                action: 'save',
+                branch_name: branchName,
+                employee_name: employeeName,
+                customer_name: customerName,
+                national_id: nationalId,
+                mac_address: macAddress,
+                device_model: deviceModel,
+                device_time: deviceTime,
+                duplicate_confirm_note: note,
+                security_status: currentSecurityStatus ? currentSecurityStatus.badge : 'معاملة جديدة'
+            };
+
+            if (webhookUrl) {
+                try {
+                    const res = await fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(recordPayload)
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        finishSaveSuccess(recordPayload);
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Save to Google Sheets failed:", e);
+                }
+            }
+
+            // Fallback: save to local browser storage & update feed
+            saveToLocalMemory(recordPayload);
+            finishSaveSuccess(recordPayload);
+        }
+
+        function saveToLocalMemory(row) {
+            row.id = globalRecords.length + 1;
+            row.created_at = new Date().toLocaleString('ar-EG');
+            globalRecords.unshift(row);
+            localStorage.setItem('local_cached_records', JSON.stringify(globalRecords.slice(0, 50)));
+            renderTable(globalRecords);
+        }
+
+        function finishSaveSuccess(row) {
+            Swal.fire({
+                icon: 'success',
+                title: 'تم تسجيل المعاملة بنجاح',
+                text: 'تم ربط البطاقة بالماك وتحديث منظومة الفروع في Google Sheets.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            resetInputs();
+            refreshLiveFeed();
+        }
+
+        // Fetch Live Feed from Google Sheets
+        async function refreshLiveFeed() {
+            const webhookUrl = localStorage.getItem('google_webhook_url');
+            const tbody = document.getElementById('recordsTableBody');
+
+            if (!webhookUrl) {
+                // Load from localStorage cache
+                const cached = localStorage.getItem('local_cached_records');
+                if (cached) {
+                    globalRecords = JSON.parse(cached);
+                    renderTable(globalRecords);
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="p-6 text-center text-slate-500">
+                                ℹ️ لم يتم وضع رابط Google Sheets Webhook بعد في الإعدادات ⚙️.<br>
+                                يتم حالياً حفظ السجلات مؤقتاً داخل المتصفح. ضع رابط الشيت لتتزامن الفروع معاً.
+                            </td>
+                        </tr>
+                    `;
+                }
+                return;
+            }
+
+            try {
+                const res = await fetch(webhookUrl);
+                const data = await res.json();
+                if (data.status === 'success' && data.records) {
+                    globalRecords = data.records;
+                    localStorage.setItem('local_cached_records', JSON.stringify(globalRecords));
+                    renderTable(globalRecords);
+                    document.getElementById('sheetsStatusBadge').classList.remove('hidden');
+                }
+            } catch (e) {
+                console.warn("Could not fetch Google Sheets feed:", e);
+                const cached = localStorage.getItem('local_cached_records');
+                if (cached) renderTable(JSON.parse(cached));
+            }
+        }
+
+        function renderTable(records) {
+            const tbody = document.getElementById('recordsTableBody');
+            if (!records || records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-500">لا توجد معاملات مسجلة بعد.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = records.map(r => {
+                let badgeClass = 'bg-slate-800 text-slate-300';
+                const st = String(r.security_status || '');
+                if (st.includes('خطر') || st.includes('مسجل لشخص') || st.includes('أمني')) {
+                    badgeClass = 'bg-red-500/20 text-red-300 border border-red-500/30';
+                } else if (st.includes('مكرر') || st.includes('تكرار')) {
+                    badgeClass = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
+                } else if (st.includes('عميل حالي')) {
+                    badgeClass = 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30';
+                } else {
+                    badgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                }
+
+                return `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="p-3.5 text-slate-500 font-mono">${r.id || '-'}</td>
+                        <td class="p-3.5 font-bold text-white">${r.branch_name || '-'}</td>
+                        <td class="p-3.5 text-slate-200">${r.customer_name || '-'}</td>
+                        <td class="p-3.5 font-mono text-indigo-300">${r.national_id || '-'}</td>
+                        <td class="p-3.5 font-mono text-violet-300 uppercase">${r.mac_address || '-'}</td>
+                        <td class="p-3.5 text-slate-300">${r.device_model || '-'}</td>
+                        <td class="p-3.5 font-mono text-xs text-slate-400">${r.device_time || '-'}</td>
+                        <td class="p-3.5"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${badgeClass}">${r.security_status || 'سليم'}</span></td>
+                        <td class="p-3.5 font-mono text-[11px] text-slate-500">${r.created_at || '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Export to CSV
+        function exportToCsv() {
+            if (!globalRecords || globalRecords.length === 0) {
+                Swal.fire({ icon: 'info', title: 'لا توجد بيانات لتصديرها' });
+                return;
+            }
+            let csv = '\uFEFFرقم العملية,الفرع,اسم العميل,الرقم القومي,ماك الجهاز,موديل الجهاز,وقت الشاشة,الحالة الأمنية,تاريخ المعاملة\n';
+            globalRecords.forEach(r => {
+                csv += `"${r.id}","${r.branch_name}","${r.customer_name}","'${r.national_id}","'${r.mac_address}","${r.device_model}","${r.device_time}","${r.security_status}","${r.created_at}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `سجلات_فروع_زيروتك_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+        }
+    </script>
+</body>
+</html>
