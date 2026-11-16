@@ -132,39 +132,83 @@
 
                 <!-- Box 1: Egyptian ID Card -->
                 <div class="space-y-3">
-                    <label class="block text-sm font-bold text-indigo-300 flex items-center justify-between">
-                        <span>🪪 1. بطاقة الرقم القومي المصرية</span>
-                        <span class="text-xs text-slate-400 font-normal">واضحة وتظهر الـ 14 رقم</span>
-                    </label>
-                    <div id="idDropZone" class="upload-slot p-6 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[220px] relative overflow-hidden group">
-                        <input type="file" id="idFileInput" accept="image/*" capture="environment" class="hidden">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-bold text-indigo-300">
+                            🪪 1. بطاقة الرقم القومي المصرية
+                        </label>
+                        <span class="text-xs text-slate-400 font-normal">تظهر الـ 14 رقم بوضوح</span>
+                    </div>
+
+                    <!-- Direct Action Buttons: Camera & Gallery -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="triggerCamera('id')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>📷 التقاط بالكاميرا</span>
+                        </button>
+                        <button type="button" onclick="triggerGallery('id')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>🖼️ فتح المعرض / الملفات</span>
+                        </button>
+                    </div>
+
+                    <!-- Hidden file inputs (one forced camera, one standard chooser/gallery) -->
+                    <input type="file" id="idCameraInput" accept="image/*" capture="environment" class="hidden">
+                    <input type="file" id="idGalleryInput" accept="image/*" class="hidden">
+
+                    <!-- DropZone Container -->
+                    <div id="idDropZone" class="upload-slot p-5 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[200px] relative overflow-hidden group">
                         <div id="idPlaceholder" class="space-y-2 pointer-events-none">
-                            <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-3xl mx-auto group-hover:scale-110 transition">
-                                📷
+                            <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-3xl mx-auto group-hover:scale-110 transition">
+                                🪪
                             </div>
-                            <p class="text-sm font-bold text-slate-200">اضغط لالتقاط أو اختيار صورة البطاقة</p>
-                            <p class="text-xs text-slate-500">يدعم السحب والإفلات أو كاميرا الموبايل</p>
+                            <p class="text-sm font-bold text-slate-200">اضغط لفتح المعرض أو اسحب الصورة هنا</p>
+                            <p class="text-xs text-slate-500">أو استخدم أزرار الكاميرا والمعرض بالأعلى</p>
                         </div>
-                        <img id="idPreviewImg" class="hidden max-h-48 rounded-xl object-contain shadow-lg" alt="معاينة البطاقة">
+                        <div id="idPreviewContainer" class="hidden flex flex-col items-center gap-2.5 w-full">
+                            <img id="idPreviewImg" class="max-h-48 rounded-xl object-contain shadow-lg border border-slate-700" alt="معاينة البطاقة">
+                            <button type="button" onclick="resetSlot('id', event)" class="px-3.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/30 text-xs font-semibold transition">
+                                ❌ حذف واستبدال
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Box 2: ZeroTech DVR Screen -->
                 <div class="space-y-3">
-                    <label class="block text-sm font-bold text-violet-300 flex items-center justify-between">
-                        <span>📺 2. شاشة استرداد كلمة المرور (ZeroTech)</span>
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-bold text-violet-300">
+                            📺 2. شاشة استرداد كلمة المرور (ZeroTech)
+                        </label>
                         <span class="text-xs text-slate-400 font-normal">تظهر الماك ووقت الجهاز</span>
-                    </label>
-                    <div id="devDropZone" class="upload-slot p-6 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[220px] relative overflow-hidden group">
-                        <input type="file" id="devFileInput" accept="image/*" capture="environment" class="hidden">
+                    </div>
+
+                    <!-- Direct Action Buttons: Camera & Gallery -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="triggerCamera('dev')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-violet-600/30 hover:bg-violet-600/50 border border-violet-500/40 text-violet-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>📷 التقاط بالكاميرا</span>
+                        </button>
+                        <button type="button" onclick="triggerGallery('dev')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>🖼️ فتح المعرض / الملفات</span>
+                        </button>
+                    </div>
+
+                    <!-- Hidden file inputs (one forced camera, one standard chooser/gallery) -->
+                    <input type="file" id="devCameraInput" accept="image/*" capture="environment" class="hidden">
+                    <input type="file" id="devGalleryInput" accept="image/*" class="hidden">
+
+                    <!-- DropZone Container -->
+                    <div id="devDropZone" class="upload-slot p-5 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[200px] relative overflow-hidden group">
                         <div id="devPlaceholder" class="space-y-2 pointer-events-none">
-                            <div class="w-16 h-16 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-3xl mx-auto group-hover:scale-110 transition">
+                            <div class="w-14 h-14 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-3xl mx-auto group-hover:scale-110 transition">
                                 🖥️
                             </div>
-                            <p class="text-sm font-bold text-slate-200">اضغط لالتقاط أو اختيار شاشة الجهاز</p>
-                            <p class="text-xs text-slate-500">يدعم السحب والإفلات أو كاميرا الموبايل</p>
+                            <p class="text-sm font-bold text-slate-200">اضغط لفتح المعرض أو اسحب الصورة هنا</p>
+                            <p class="text-xs text-slate-500">أو استخدم أزرار الكاميرا والمعرض بالأعلى</p>
                         </div>
-                        <img id="devPreviewImg" class="hidden max-h-48 rounded-xl object-contain shadow-lg" alt="معاينة الشاشة">
+                        <div id="devPreviewContainer" class="hidden flex flex-col items-center gap-2.5 w-full">
+                            <img id="devPreviewImg" class="max-h-48 rounded-xl object-contain shadow-lg border border-slate-700" alt="معاينة الشاشة">
+                            <button type="button" onclick="resetSlot('dev', event)" class="px-3.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/30 text-xs font-semibold transition">
+                                ❌ حذف واستبدال
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -467,19 +511,64 @@
             reader.readAsDataURL(file);
         }
 
+        // Action Triggers for Camera & Gallery
+        function triggerCamera(type) {
+            if (type === 'id') {
+                document.getElementById('idCameraInput').click();
+            } else {
+                document.getElementById('devCameraInput').click();
+            }
+        }
+
+        function triggerGallery(type) {
+            if (type === 'id') {
+                document.getElementById('idGalleryInput').click();
+            } else {
+                document.getElementById('devGalleryInput').click();
+            }
+        }
+
+        function resetSlot(type, e) {
+            if (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            if (type === 'id') {
+                idBase64 = null;
+                document.getElementById('idCameraInput').value = '';
+                document.getElementById('idGalleryInput').value = '';
+                document.getElementById('idPlaceholder').classList.remove('hidden');
+                document.getElementById('idPreviewContainer').classList.add('hidden');
+            } else {
+                devBase64 = null;
+                document.getElementById('devCameraInput').value = '';
+                document.getElementById('devGalleryInput').value = '';
+                document.getElementById('devPlaceholder').classList.remove('hidden');
+                document.getElementById('devPreviewContainer').classList.add('hidden');
+            }
+        }
+
         // Dropzone & File Input Setup
         function setupDropZones() {
             const idZone = document.getElementById('idDropZone');
-            const idInput = document.getElementById('idFileInput');
-            idZone.addEventListener('click', () => idInput.click());
-            idInput.addEventListener('change', (e) => {
+            const devZone = document.getElementById('devDropZone');
+
+            // Clicking dropzone opens standard gallery/file selector
+            idZone.addEventListener('click', () => triggerGallery('id'));
+            devZone.addEventListener('click', () => triggerGallery('dev'));
+
+            // Setup listeners for Camera and Gallery inputs
+            document.getElementById('idCameraInput').addEventListener('change', (e) => {
+                if (e.target.files.length) handleFile(e.target.files[0], 'id');
+            });
+            document.getElementById('idGalleryInput').addEventListener('change', (e) => {
                 if (e.target.files.length) handleFile(e.target.files[0], 'id');
             });
 
-            const devZone = document.getElementById('devDropZone');
-            const devInput = document.getElementById('devFileInput');
-            devZone.addEventListener('click', () => devInput.click());
-            devInput.addEventListener('change', (e) => {
+            document.getElementById('devCameraInput').addEventListener('change', (e) => {
+                if (e.target.files.length) handleFile(e.target.files[0], 'dev');
+            });
+            document.getElementById('devGalleryInput').addEventListener('change', (e) => {
                 if (e.target.files.length) handleFile(e.target.files[0], 'dev');
             });
 
@@ -502,32 +591,27 @@
         }
 
         function handleFile(file, type) {
+            if (!file) return;
             compressImage(file, (b64, dataUrl) => {
                 if (type === 'id') {
                     idBase64 = b64;
                     document.getElementById('idPlaceholder').classList.add('hidden');
                     const img = document.getElementById('idPreviewImg');
                     img.src = dataUrl;
-                    img.classList.remove('hidden');
+                    document.getElementById('idPreviewContainer').classList.remove('hidden');
                 } else {
                     devBase64 = b64;
                     document.getElementById('devPlaceholder').classList.add('hidden');
                     const img = document.getElementById('devPreviewImg');
                     img.src = dataUrl;
-                    img.classList.remove('hidden');
+                    document.getElementById('devPreviewContainer').classList.remove('hidden');
                 }
             });
         }
 
         function resetInputs() {
-            idBase64 = null;
-            devBase64 = null;
-            document.getElementById('idFileInput').value = '';
-            document.getElementById('devFileInput').value = '';
-            document.getElementById('idPlaceholder').classList.remove('hidden');
-            document.getElementById('idPreviewImg').classList.add('hidden');
-            document.getElementById('devPlaceholder').classList.remove('hidden');
-            document.getElementById('devPreviewImg').classList.add('hidden');
+            resetSlot('id');
+            resetSlot('dev');
             document.getElementById('reviewSection').classList.add('hidden');
             document.getElementById('securityBanner').classList.add('hidden');
         }
