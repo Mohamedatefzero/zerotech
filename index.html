@@ -547,7 +547,7 @@
                     <label class="block text-xs font-bold text-indigo-300 mb-1">
                         مفتاح الذكاء الاصطناعي (Gemini API Key)
                     </label>
-                    <input id="settingApiKey" type="password" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-mono text-white" placeholder="AQ.Ab8RN6...">
+                    <input id="settingApiKey" type="password" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-mono text-white" placeholder="أدخل مفتاح Gemini...">
                     <p class="text-[11px] text-slate-400 mt-1">يستخدم لقراءة البطاقة وشاشات زيروتك بدقة 100%.</p>
                 </div>
 
@@ -637,7 +637,7 @@
         const WORKING_API_KEY = atob("QVEuQWI4Uk42Sm5EbmhtMHVoV3dDaUlzUnZwM21HZ0k0b2YyeXNIeUg3VS1nd1FWbWxzT3c=");
         const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw5IkNibxaV-56H8xCtgG8hNy9sQNZJcKyEi9v5MY1tf4Cek9-i6KI5tCWhTWfzcHV_ng/exec";
         const DEFAULT_BRANCHES = "فرع باب اللوق,فرع الزقازيق,فرع طنطا,فرع أسيوط";
-        const DEFAULT_WHATSAPP_PHONE = "201000000000";
+        const DEFAULT_WHATSAPP_PHONE = "+201080131115,+201091846721";
 
         // Seeded Initial Users
         const INITIAL_USERS = [
@@ -668,7 +668,7 @@
         function initSystemSettings() {
             // Upgrade key if null or holding the old revoked token
             const storedKey = localStorage.getItem('gemini_api_key');
-            if (!storedKey || storedKey.includes('I2dCLVCbQYwnf1K6X4TQMddTMFIBa8GcdOvAvYUPemyQ')) {
+            if (!storedKey || storedKey !== WORKING_API_KEY) {
                 localStorage.setItem('gemini_api_key', WORKING_API_KEY);
             }
             if (!localStorage.getItem('google_webhook_url')) {
@@ -677,7 +677,8 @@
             if (!localStorage.getItem('branches_list')) {
                 localStorage.setItem('branches_list', DEFAULT_BRANCHES);
             }
-            if (!localStorage.getItem('admin_whatsapp_phone')) {
+            const currentWa = localStorage.getItem('admin_whatsapp_phone');
+            if (!currentWa || currentWa.includes('201000000000')) {
                 localStorage.setItem('admin_whatsapp_phone', DEFAULT_WHATSAPP_PHONE);
             }
             loadBranchesIntoSelector();
