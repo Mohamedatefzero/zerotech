@@ -138,9 +138,14 @@
                 <span class="text-slate-300" id="headerBranchName">الفرع</span>
             </div>
 
-            <!-- Manage Sales Button (For Manager and Master) -->
+            <!-- Manage Users Button (For Manager and Master) -->
             <button id="btnManageSales" onclick="openManageSalesModal()" class="hidden flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-violet-600/30 hover:bg-violet-600/50 border border-violet-500/40 text-violet-200 text-xs font-bold transition">
-                <span>👥 إدارة السيلز</span>
+                <span id="btnManageUsersText">👥 إدارة المستخدمين</span>
+            </button>
+
+            <!-- WhatsApp Config Button (For Master Only) -->
+            <button id="btnWhatsappConfig" onclick="openWhatsappConfigModal()" class="hidden flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-200 text-xs font-bold transition">
+                <span>📱 أرقام الواتساب</span>
             </button>
 
             <!-- Settings Button (For Master Only) -->
@@ -159,6 +164,22 @@
     <!-- 4. MAIN APPLICATION CONTAINER -->
     <!-- ========================================== -->
     <main class="max-w-7xl mx-auto space-y-6">
+
+        <!-- Master WhatsApp Quick Card (Visible for Master Only) -->
+        <div id="masterWhatsappBanner" class="hidden glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 border border-emerald-500/40 bg-emerald-950/20 shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+                    📱
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-emerald-300">أرقام واتساب استلام إشعارات الماك (إدارة الشركة والدعم الفني):</h4>
+                    <p class="text-sm font-mono font-bold text-white mt-0.5" id="masterWhatsappDisplay">لم يتم تعيين أرقام بعد</p>
+                </div>
+            </div>
+            <button onclick="openWhatsappConfigModal()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow flex items-center gap-1.5">
+                <span>✏️ تعديل أرقام الواتساب</span>
+            </button>
+        </div>
 
         <!-- Top Status Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -451,9 +472,9 @@
                 <button onclick="closeManageSalesModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
             </div>
 
-            <!-- Add New Sales Form -->
+            <!-- Add New User Form -->
             <form onsubmit="handleAddNewSales(event)" class="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-3">
-                <h4 class="text-xs font-bold text-violet-300">➕ إضافة موظف سيلز جديد:</h4>
+                <h4 class="text-xs font-bold text-violet-300" id="formAddUserTitle">➕ إضافة مستخدم جديد:</h4>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                         <label class="block text-[11px] text-slate-400 mb-1">اسم الموظف</label>
@@ -468,13 +489,22 @@
                         <input id="newSalesPassword" type="password" required placeholder="123456" class="w-full glass-input px-3 py-1.5 rounded-lg text-xs text-white">
                     </div>
                 </div>
-                <!-- If Master is managing, allow choosing branch -->
-                <div id="masterBranchAssignContainer" class="hidden">
-                    <label class="block text-[11px] text-slate-400 mb-1">تعيين الفرع للموظف:</label>
-                    <select id="newSalesBranchSelect" class="w-full glass-input px-3 py-1.5 rounded-lg text-xs text-white"></select>
+                <!-- If Master is managing, allow choosing role and branch -->
+                <div id="masterBranchAssignContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">نوع الحساب (الصلاحية):</label>
+                        <select id="newUserRoleSelect" class="w-full glass-input px-3 py-1.5 rounded-lg text-xs text-white">
+                            <option value="sales">سيلز (Sales)</option>
+                            <option value="manager">مدير فرع (Branch Manager)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">تعيين الفرع للموظف:</label>
+                        <select id="newSalesBranchSelect" class="w-full glass-input px-3 py-1.5 rounded-lg text-xs text-white"></select>
+                    </div>
                 </div>
                 <button type="submit" class="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition shadow">
-                    ➕ إضافة السيلز وتفعيل حسابه
+                    ➕ حفظ وتفعيل الحساب فوراً
                 </button>
             </form>
 
@@ -553,6 +583,47 @@
                 </button>
                 <button onclick="saveSettings()" class="px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-lg">
                     حفظ الإعدادات
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 6.5 WHATSAPP CONFIG MODAL (Master Only) -->
+    <!-- ========================================== -->
+    <div id="whatsappConfigModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="glass-card max-w-lg w-full p-6 md:p-8 rounded-3xl shadow-2xl border border-emerald-500/40 space-y-6">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
+                        📱
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white">أرقام واتساب استلام إشعارات الماك</h3>
+                        <p class="text-xs text-emerald-300">إدارة الشركة والدعم الفني</p>
+                    </div>
+                </div>
+                <button onclick="closeWhatsappConfigModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-200 mb-1.5">
+                        أرقام الهواتف المستلمة للإشعارات (مع كود الدولة مثل 20، مفصولة بفواصل):
+                    </label>
+                    <textarea id="modalWhatsappPhones" rows="3" class="w-full glass-input px-3.5 py-2.5 rounded-xl text-xs font-mono text-white" placeholder="مثال: 201012345678, 201198765432"></textarea>
+                    <p class="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+                        💡 بمجرد أن يقوم أي سيلز في أي فرع بحفظ جهاز DVR، سيتم إرسال الإشعار والتفاصيل لهذه الأرقام مع بيانات الماك والموديل والعميل.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800">
+                <button onclick="closeWhatsappConfigModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition">
+                    إلغاء
+                </button>
+                <button onclick="saveWhatsappNumbers()" class="px-6 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg">
+                    💾 حفظ الأرقام
                 </button>
             </div>
         </div>
@@ -741,6 +812,28 @@
         // ==========================================
         // ROLE-BASED ACCESS CONTROL (RBAC)
         // ==========================================
+        function openWhatsappConfigModal() {
+            document.getElementById('modalWhatsappPhones').value = localStorage.getItem('admin_whatsapp_phone') || DEFAULT_WHATSAPP_PHONE;
+            document.getElementById('whatsappConfigModal').classList.remove('hidden');
+        }
+
+        function closeWhatsappConfigModal() {
+            document.getElementById('whatsappConfigModal').classList.add('hidden');
+        }
+
+        function saveWhatsappNumbers() {
+            const raw = document.getElementById('modalWhatsappPhones').value.trim();
+            if (!raw) {
+                Swal.fire({ icon: 'warning', title: 'يرجى كتابة رقم واتساب واحد على الأقل' });
+                return;
+            }
+            localStorage.setItem('admin_whatsapp_phone', raw);
+            const display = document.getElementById('masterWhatsappDisplay');
+            if (display) display.textContent = raw;
+            closeWhatsappConfigModal();
+            Swal.fire({ icon: 'success', title: 'تم حفظ أرقام الواتساب بنجاح!', timer: 1500, showConfirmButton: false });
+        }
+
         function applyUserPermissions() {
             const role = currentUser.role; // 'sales', 'manager', 'master'
             const roleBadge = document.getElementById('roleBadgeHeader');
@@ -750,6 +843,10 @@
             const employeeInput = document.getElementById('employeeInput');
             const btnExportCsv = document.getElementById('btnExportCsv');
             const btnManageSales = document.getElementById('btnManageSales');
+            const btnManageUsersText = document.getElementById('btnManageUsersText');
+            const btnWhatsappConfig = document.getElementById('btnWhatsappConfig');
+            const masterWhatsappBanner = document.getElementById('masterWhatsappBanner');
+            const masterWhatsappDisplay = document.getElementById('masterWhatsappDisplay');
             const btnSettings = document.getElementById('btnSettings');
             const subtext = document.getElementById('tableFilterSubtext');
 
@@ -761,16 +858,16 @@
                 roleBadge.textContent = 'سيلز الفرع';
                 roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30';
 
-                // Fixed branch & fixed employee name (Cannot modify)
                 branchSelector.value = currentUser.branch;
                 branchSelector.disabled = true;
 
                 employeeInput.value = currentUser.name;
                 employeeInput.disabled = true;
 
-                // Hidden controls
                 btnExportCsv.classList.add('hidden'); // Sales cannot export excel
                 btnManageSales.classList.add('hidden');
+                btnWhatsappConfig.classList.add('hidden');
+                masterWhatsappBanner.classList.add('hidden');
                 btnSettings.classList.add('hidden');
 
                 subtext.textContent = `يعرض حركات فرعك (${currentUser.branch}) فقط`;
@@ -780,16 +877,17 @@
                 roleBadge.textContent = 'مدير الفرع';
                 roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30';
 
-                // Fixed to his branch (Cannot change branch)
                 branchSelector.value = currentUser.branch;
                 branchSelector.disabled = true;
 
                 employeeInput.value = currentUser.name;
                 employeeInput.disabled = false;
 
-                // Controls available
                 btnExportCsv.classList.remove('hidden'); // Manager CAN export excel
-                btnManageSales.classList.remove('hidden'); // Manager CAN manage sales in his branch
+                btnManageSales.classList.remove('hidden'); // Manager CAN manage his branch sales
+                if (btnManageUsersText) btnManageUsersText.textContent = '👥 إدارة سيلز الفرع';
+                btnWhatsappConfig.classList.add('hidden');
+                masterWhatsappBanner.classList.add('hidden');
                 btnSettings.classList.add('hidden');
 
                 subtext.textContent = `يعرض جميع حركات وموظفي فرعك (${currentUser.branch})`;
@@ -799,14 +897,20 @@
                 roleBadge.textContent = 'الماستر العام';
                 roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
 
-                // Can switch between branches freely
                 branchSelector.disabled = false;
                 employeeInput.value = currentUser.name;
                 employeeInput.disabled = false;
 
-                // Full controls available
                 btnExportCsv.classList.remove('hidden');
                 btnManageSales.classList.remove('hidden');
+                if (btnManageUsersText) btnManageUsersText.textContent = '👥 إدارة كل المستخدمين';
+                
+                // Visible WhatsApp Management for Master
+                btnWhatsappConfig.classList.remove('hidden');
+                masterWhatsappBanner.classList.remove('hidden');
+                if (masterWhatsappDisplay) {
+                    masterWhatsappDisplay.textContent = localStorage.getItem('admin_whatsapp_phone') || DEFAULT_WHATSAPP_PHONE;
+                }
                 btnSettings.classList.remove('hidden');
 
                 subtext.textContent = 'يعرض جميع العمليات لكل فروع الشركة بلا استثناء';
@@ -819,11 +923,13 @@
         function openManageSalesModal() {
             const modal = document.getElementById('manageSalesModal');
             const subtitle = document.getElementById('manageSalesSubtitle');
+            const formTitle = document.getElementById('formAddUserTitle');
             const masterAssign = document.getElementById('masterBranchAssignContainer');
             const newSalesBranchSelect = document.getElementById('newSalesBranchSelect');
 
             if (currentUser.role === 'master') {
-                subtitle.textContent = 'إدارة موظفي السيلز عبر جميع فروع الشركة';
+                subtitle.textContent = 'إدارة موظفي السيلز والمديرين عبر جميع فروع الشركة';
+                if (formTitle) formTitle.textContent = '➕ إضافة مستخدم جديد (سيلز أو مدير):';
                 masterAssign.classList.remove('hidden');
                 newSalesBranchSelect.innerHTML = '';
                 const branches = (localStorage.getItem('branches_list') || DEFAULT_BRANCHES).split(',').map(b => b.trim());
@@ -835,6 +941,7 @@
                 });
             } else {
                 subtitle.textContent = `إدارة موظفي السيلز التابعين لـ ${currentUser.branch}`;
+                if (formTitle) formTitle.textContent = '➕ إضافة سيلز جديد لفرعك:';
                 masterAssign.classList.add('hidden');
             }
 
@@ -850,19 +957,19 @@
             const tbody = document.getElementById('salesListTbody');
             const users = getUsers();
 
-            // Filter sales for this branch (or all sales if Master)
-            const salesUsers = users.filter(u => {
-                if (u.role !== 'sales') return false;
+            // Filter users: Master sees all users (sales & managers), Manager sees his branch sales
+            const visibleUsers = users.filter(u => {
+                if (u.role === 'master') return false; // Master cannot delete himself
                 if (currentUser.role === 'master') return true;
-                return u.branch === currentUser.branch;
+                return u.branch === currentUser.branch && u.role === 'sales';
             });
 
-            if (salesUsers.length === 0) {
+            if (visibleUsers.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">لا يوجد موظفو سيلز مسجلون في هذا الفرع حالياً.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = salesUsers.map(s => `
+            tbody.innerHTML = visibleUsers.map(s => `
                 <tr class="hover:bg-slate-800/40">
                     <td class="p-2.5 font-bold text-white">${s.name}</td>
                     <td class="p-2.5 font-mono text-indigo-300">${s.username}</td>
@@ -889,7 +996,16 @@
             const name = document.getElementById('newSalesName').value.trim();
             const username = document.getElementById('newSalesUsername').value.trim().toLowerCase();
             const pass = document.getElementById('newSalesPassword').value.trim();
-            const branch = currentUser.role === 'master' ? document.getElementById('newSalesBranchSelect').value : currentUser.branch;
+            
+            let role = 'sales';
+            let branch = currentUser.branch;
+
+            if (currentUser.role === 'master') {
+                const roleEl = document.getElementById('newUserRoleSelect');
+                if (roleEl) role = roleEl.value;
+                const branchEl = document.getElementById('newSalesBranchSelect');
+                if (branchEl) branch = branchEl.value;
+            }
 
             const users = getUsers();
             if (users.some(u => u.username.toLowerCase() === username)) {
@@ -897,24 +1013,24 @@
                 return;
             }
 
-            const newSales = {
+            const newUser = {
                 id: Date.now(),
                 username: username,
                 password: pass,
-                role: 'sales',
+                role: role,
                 name: name,
                 branch: branch,
                 mustChangePassword: true
             };
 
-            users.push(newSales);
+            users.push(newUser);
             saveUsers(users);
 
             document.getElementById('newSalesName').value = '';
             document.getElementById('newSalesUsername').value = '';
             document.getElementById('newSalesPassword').value = '';
 
-            Swal.fire({ icon: 'success', title: 'تمت إضافة السيلز بنجاح!', timer: 1500, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: 'تمت إضافة الحساب وتفعيله بنجاح!', timer: 1500, showConfirmButton: false });
             renderSalesTable();
         }
 
@@ -943,18 +1059,20 @@
 
         function deleteSalesUser(id) {
             Swal.fire({
-                title: 'حذف حساب السيلز',
-                text: 'هل أنت متأكد من حذف هذا الحساب؟',
+                title: 'حذف حساب المستخدم',
+                html: '<div class="text-right text-xs text-slate-300 space-y-2"><p class="font-bold text-amber-300">⚠️ تنبيه هام:</p><p>سيتم حذف صلاحية الدخول وكلمة المرور لهذا الموظف فقط لمنعه من استخدام المنظومة.</p><p class="text-emerald-400 font-bold">🛡️ جميع المعاملات السابقة المسجلة باسم هذا الموظف ستظل محفوظة بالكامل في شيت الإكسل وفي المنظومة دون أي مساس بها.</p></div>',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'نعم، حذف الحساب',
-                cancelButtonText: 'إلغاء'
+                confirmButtonText: 'نعم، إيقاف وحذف الحساب',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#ef4444'
             }).then(res => {
                 if (res.isConfirmed) {
                     let users = getUsers();
                     users = users.filter(u => u.id !== id);
                     saveUsers(users);
-                    Swal.fire({ icon: 'success', title: 'تم حذف الحساب بنجاح', timer: 1500, showConfirmButton: false });
+                    // NOTE: globalRecords and Google Sheets remain 100% UNTOUCHED!
+                    Swal.fire({ icon: 'success', title: 'تم حذف الحساب وإيقاف الدخول', text: 'جميع المعاملات السابقة للموظف محفوظة بالكامل في السجلات والإكسل.', timer: 2500, showConfirmButton: false });
                     renderSalesTable();
                 }
             });
@@ -1411,9 +1529,20 @@
             renderTable(globalRecords);
         }
 
-        // WhatsApp Notification Dispatcher
+        // WhatsApp Notification Dispatcher (Supports single or multiple numbers + auto format)
+        function formatWhatsappNumber(num) {
+            let p = String(num).trim().replace(/[^0-9]/g, '');
+            if (p.startsWith('01') && p.length === 11) {
+                p = '2' + p; // Converts 01012345678 to 201012345678
+            } else if (p.startsWith('1') && p.length === 10) {
+                p = '20' + p;
+            }
+            return p;
+        }
+
         function promptWhatsAppNotification(record) {
-            const adminPhone = localStorage.getItem('admin_whatsapp_phone') || DEFAULT_WHATSAPP_PHONE;
+            const rawPhones = localStorage.getItem('admin_whatsapp_phone') || DEFAULT_WHATSAPP_PHONE;
+            const phoneList = rawPhones.split(',').map(p => formatWhatsappNumber(p)).filter(Boolean);
             
             const waText = 
 `🚨 *طلب فك باسورد جهاز DVR جديد*
@@ -1429,16 +1558,31 @@
 ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_confirm_note : ''}`;
 
             const encodedWa = encodeURIComponent(waText);
-            const waUrl = `https://wa.me/${adminPhone}?text=${encodedWa}`;
+
+            let buttonsHtml = '';
+            if (phoneList.length > 1) {
+                buttonsHtml = phoneList.map((ph, idx) => `
+                    <a href="https://wa.me/${ph}?text=${encodedWa}" target="_blank" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition w-full my-1">
+                        <span>📱 إرسال واتساب للرقم (${idx + 1}): ${ph}</span>
+                    </a>
+                `).join('');
+            } else {
+                const singlePhone = phoneList[0] || DEFAULT_WHATSAPP_PHONE;
+                buttonsHtml = `
+                    <a href="https://wa.me/${singlePhone}?text=${encodedWa}" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl transition w-full">
+                        <span>📱 إرسال إشعار فوري عبر WhatsApp</span>
+                    </a>
+                `;
+            }
 
             Swal.fire({
                 icon: 'success',
                 title: 'تم تسجيل المعاملة بنجاح! 💾',
                 html: `
-                    <p class="text-xs text-slate-300 mb-4">تم حفظ العملية وتحديث المنظومة في Google Sheets.</p>
-                    <a href="${waUrl}" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl transition w-full">
-                        <span>📱 إرسال إشعار فوري عبر WhatsApp</span>
-                    </a>
+                    <p class="text-xs text-slate-300 mb-3">تم حفظ العملية في Google Sheets. اضغط بالأسفل لإرسال الإشعار للإدارة فوراً:</p>
+                    <div class="space-y-2">
+                        ${buttonsHtml}
+                    </div>
                 `,
                 confirmButtonText: 'إغلاق',
                 showConfirmButton: true
