@@ -637,7 +637,7 @@
         const WORKING_API_KEY = atob("QVEuQWI4Uk42Sm5EbmhtMHVoV3dDaUlzUnZwM21HZ0k0b2YyeXNIeUg3VS1nd1FWbWxzT3c=");
         const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw5IkNibxaV-56H8xCtgG8hNy9sQNZJcKyEi9v5MY1tf4Cek9-i6KI5tCWhTWfzcHV_ng/exec";
         const DEFAULT_BRANCHES = "فرع باب اللوق,فرع الزقازيق,فرع طنطا,فرع أسيوط";
-        const DEFAULT_WHATSAPP_PHONE = "+201080131115,+201091846721";
+        const DEFAULT_WHATSAPP_PHONE = "201080131115,201091846721";
 
         // Seeded Initial Users
         const INITIAL_USERS = [
@@ -678,7 +678,7 @@
                 localStorage.setItem('branches_list', DEFAULT_BRANCHES);
             }
             const currentWa = localStorage.getItem('admin_whatsapp_phone');
-            if (!currentWa || currentWa.includes('201000000000')) {
+            if (!currentWa || currentWa.includes('201000000000') || !currentWa.includes('1080131115')) {
                 localStorage.setItem('admin_whatsapp_phone', DEFAULT_WHATSAPP_PHONE);
             }
             loadBranchesIntoSelector();
