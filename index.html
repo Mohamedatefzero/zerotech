@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة ربط الفروع وفك كلمة مرور زيروتك الذكية</title>
+    <title>ZeroPass AI | منظومة زيروتك الذكية لفك كلمات المرور والتحقق الأمني</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SweetAlert2 -->
@@ -56,11 +56,14 @@
     <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
         <div class="glass-card max-w-md w-full p-6 md:p-8 rounded-3xl shadow-2xl border border-indigo-500/30 space-y-6">
             <div class="text-center space-y-2">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-3xl mx-auto shadow-xl">
-                    🔐
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-3xl mx-auto shadow-xl border border-indigo-400/30">
+                    ⚡
                 </div>
-                <h2 class="text-xl md:text-2xl font-black text-white">منظومة فروع زيروتك</h2>
-                <p class="text-xs text-slate-400">سجل الدخول بحسابك لمتابعة عمليات فك الباسورد</p>
+                <h2 class="text-2xl md:text-3xl font-black text-white flex items-center justify-center gap-2">
+                    <span class="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">ZeroPass</span>
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 font-bold border border-indigo-500/40">AI</span>
+                </h2>
+                <p class="text-xs text-slate-400">منظومة زيروتك الذكية لفك كلمات المرور والتحقق الأمني الموحد</p>
             </div>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -118,15 +121,16 @@
     <!-- ========================================== -->
     <header class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl glass-card mb-6 shadow-xl">
         <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-2xl shadow-lg">
-                🔐
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-2xl shadow-lg border border-indigo-400/30">
+                ⚡
             </div>
             <div>
                 <h1 class="text-xl md:text-2xl font-black tracking-tight text-white flex items-center gap-2">
-                    منظومة فروع زيروتك
+                    <span class="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">ZeroPass</span>
+                    <span class="text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 font-bold border border-indigo-500/40">AI</span>
                     <span id="roleBadgeHeader" class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">سيلز</span>
                 </h1>
-                <p class="text-xs text-slate-400">ربط البطاقة بماك DVR زيروتك وكشف التكرار والسرقة لحظياً</p>
+                <p class="text-xs text-slate-400">منظومة زيروتك الذكية لربط الفروع والتحقق الأمني وفك كلمات المرور</p>
             </div>
         </div>
 
@@ -182,7 +186,7 @@
         </div>
 
         <!-- Top Status Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div id="topStatusCards" class="grid grid-cols-1 md:grid-cols-3 gap-4 hidden">
             <div class="glass-card p-4 rounded-2xl flex items-center gap-3 border-l-4 border-l-emerald-500">
                 <div class="text-2xl">⚡</div>
                 <div>
@@ -853,6 +857,7 @@
             const masterWhatsappDisplay = document.getElementById('masterWhatsappDisplay');
             const btnSettings = document.getElementById('btnSettings');
             const subtext = document.getElementById('tableFilterSubtext');
+            const topStatusCards = document.getElementById('topStatusCards');
 
             headerUser.textContent = currentUser.name;
             headerBranch.textContent = currentUser.branch;
@@ -873,6 +878,7 @@
                 btnWhatsappConfig.classList.add('hidden');
                 masterWhatsappBanner.classList.add('hidden');
                 btnSettings.classList.add('hidden');
+                if (topStatusCards) topStatusCards.classList.add('hidden'); // Hide status cards for sales
 
                 subtext.textContent = `يعرض حركات فرعك (${currentUser.branch}) فقط`;
             }
@@ -887,14 +893,16 @@
                 employeeInput.value = currentUser.name;
                 employeeInput.disabled = false;
 
-                btnExportCsv.classList.remove('hidden'); // Manager CAN export excel
-                btnManageSales.classList.remove('hidden'); // Manager CAN manage his branch sales
-                if (btnManageUsersText) btnManageUsersText.textContent = '👥 إدارة سيلز الفرع';
+                btnExportCsv.classList.remove('hidden'); // Manager can export branch CSV
+                btnManageSales.classList.remove('hidden');
+                if (btnManageUsersText) btnManageUsersText.textContent = '👥 إدارة موظفي السيلز بالفرع';
+
                 btnWhatsappConfig.classList.add('hidden');
                 masterWhatsappBanner.classList.add('hidden');
                 btnSettings.classList.add('hidden');
+                if (topStatusCards) topStatusCards.classList.add('hidden'); // Hide status cards for manager
 
-                subtext.textContent = `يعرض جميع حركات وموظفي فرعك (${currentUser.branch})`;
+                subtext.textContent = `يعرض حركات فرعك (${currentUser.branch}) فقط`;
             }
             // 3. MASTER ADMIN PERMISSIONS
             else if (role === 'master') {
@@ -916,14 +924,12 @@
                     masterWhatsappDisplay.textContent = localStorage.getItem('admin_whatsapp_phone') || DEFAULT_WHATSAPP_PHONE;
                 }
                 btnSettings.classList.remove('hidden');
+                if (topStatusCards) topStatusCards.classList.remove('hidden'); // SHOW status cards EXCLUSIVELY for master
 
                 subtext.textContent = 'يعرض جميع العمليات لكل فروع الشركة بلا استثناء';
             }
         }
 
-        // ==========================================
-        // SALES MANAGEMENT MODAL (Manager & Master)
-        // ==========================================
         function openManageSalesModal() {
             const modal = document.getElementById('manageSalesModal');
             const subtitle = document.getElementById('manageSalesSubtitle');
@@ -1549,7 +1555,7 @@
             const phoneList = rawPhones.split(',').map(p => formatWhatsappNumber(p)).filter(Boolean);
             
             const waText = 
-`🚨 *طلب فك باسورد جهاز DVR جديد*
+`⚡ *طلب فك باسورد جهاز DVR جديد - ZeroPass AI*
 🏢 *الفرع:* ${record.branch_name}
 👤 *السيلز:* ${record.employee_name}
 ━━━━━━━━━━━━━
