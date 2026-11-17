@@ -636,7 +636,7 @@
     <script>
         // Preset default credentials & configuration (Securely decoded to bypass static scanning)
         const WORKING_API_KEY = atob("QVEuQWI4Uk42Sm5EbmhtMHVoV3dDaUlzUnZwM21HZ0k0b2YyeXNIeUg3VS1nd1FWbWxzT3c=");
-        const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw5IkNibxaV-56H8xCtgG8hNy9sQNZJcKyEi9v5MY1tf4Cek9-i6KI5tCWhTWfzcHV_ng/exec";
+        const DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz5Eu7_I0wpcgM_uHhoL9UGlfq7A1ObeWZoPI5SVb2c4wPEvImwcmtSB0bGdPRbqa232w/exec";
         const DEFAULT_BRANCHES = "فرع باب اللوق,فرع الزقازيق,فرع طنطا,فرع أسيوط";
         const DEFAULT_WHATSAPP_PHONE = "201080131115,201091846721";
 
@@ -672,7 +672,8 @@
             if (!storedKey || storedKey !== WORKING_API_KEY) {
                 localStorage.setItem('gemini_api_key', WORKING_API_KEY);
             }
-            if (!localStorage.getItem('google_webhook_url')) {
+            const currentWh = localStorage.getItem('google_webhook_url');
+            if (!currentWh || currentWh.includes('AKfycbw5IkNibxaV') || currentWh !== DEFAULT_WEBHOOK_URL) {
                 localStorage.setItem('google_webhook_url', DEFAULT_WEBHOOK_URL);
             }
             if (!localStorage.getItem('branches_list')) {
