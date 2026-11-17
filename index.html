@@ -442,11 +442,12 @@
                             <th class="p-3.5">تاريخ الشاشة</th>
                             <th class="p-3.5">الحالة الأمنية</th>
                             <th class="p-3.5">وقت المعاملة</th>
+                            <th class="p-3.5 text-center" id="thActions">إجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="recordsTableBody" class="divide-y divide-slate-800/60 font-medium">
                         <tr>
-                            <td colspan="10" class="p-8 text-center text-slate-500">
+                            <td colspan="11" class="p-8 text-center text-slate-500">
                                 جاري تحميل السجلات...
                             </td>
                         </tr>
@@ -1633,7 +1634,7 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
         function renderTable(records) {
             const tbody = document.getElementById('recordsTableBody');
             if (!records || records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">لا توجد معاملات مسجلة حتى الآن.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-500">لا توجد معاملات مسجلة حتى الآن.</td></tr>`;
                 return;
             }
 
@@ -1662,9 +1663,87 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
                         <td class="p-3.5 font-mono text-xs text-slate-400">${r.device_time || '-'}</td>
                         <td class="p-3.5"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${badgeClass}">${r.security_status || 'سليم'}</span></td>
                         <td class="p-3.5 font-mono text-[11px] text-slate-500">${r.created_at || '-'}</td>
+                        <td class="p-3.5 text-center">
+                            ${currentUser && currentUser.role === 'master' ? `
+                                <button onclick="confirmDeleteRecord('${r.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500 text-red-300 hover:text-white text-xs font-bold transition border border-red-500/30 shadow-sm" title="حذف المعاملة">
+                                    <span>🗑️ حذف</span>
+                                </button>
+                            ` : `<span class="text-slate-600 text-xs">-</span>`}
+                        </td>
                     </tr>
                 `;
             }).join('');
+        }
+
+
+        // ==========================================
+        // MASTER RECORD DELETION
+        // ==========================================
+        async function confirmDeleteRecord(recordId) {
+            if (!currentUser || currentUser.role !== 'master') {
+                Swal.fire({ icon: 'error', title: 'غير مصرح', text: 'صلاحية حذف المعاملات مقتصرة حصرياً على المدير العام (Master).' });
+                return;
+            }
+
+            const rec = globalRecords.find(x => String(x.id) === String(recordId));
+            const details = rec ? `العميل: ${rec.customer_name} | الماك: ${rec.mac_address} | الفرع: ${rec.branch_name}` : '';
+
+            const result = await Swal.fire({
+                icon: 'warning',
+                title: 'تأكيد حذف المعاملة',
+                html: `
+                    <p class="text-xs text-slate-300 mb-2">هل أنت متأكد من حذف هذه المعاملة رقم (<b>#${recordId}</b>) نهائياً من قاعدة البيانات؟</p>
+                    ${details ? `<p class="text-[11px] text-amber-300 font-mono bg-amber-500/10 p-2 rounded-xl border border-amber-500/20">${details}</p>` : ''}
+                    <p class="text-[11px] text-red-400 mt-2 font-bold">⚠️ لا يمكن التراجع عن هذا الإجراء بعد الحذف!</p>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احذف المعاملة',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#334155'
+            });
+
+            if (!result.isConfirmed) return;
+
+            Swal.fire({
+                title: 'جاري الحذف...',
+                text: 'يتم الآن حذف المعاملة من Google Sheets وتحديث المنظومة...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            const webhookUrl = localStorage.getItem('google_webhook_url');
+            let cloudDeleted = false;
+
+            if (webhookUrl) {
+                try {
+                    const res = await fetch(webhookUrl, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'delete_record', id: recordId, mac_address: rec ? rec.mac_address : '' })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        cloudDeleted = true;
+                    }
+                } catch (e) {
+                    console.warn('Webhook delete call error:', e);
+                }
+            }
+
+            // Remove from local memory & cached records
+            globalRecords = globalRecords.filter(r => String(r.id) !== String(recordId));
+            localStorage.setItem('local_cached_records', JSON.stringify(globalRecords.slice(0, 50)));
+            renderTable(globalRecords);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'تم حذف المعاملة بنجاح! 🗑️',
+                text: cloudDeleted ? 'تم حذف السجل بنجاح من شيت Google Sheets وتحديث الجدول.' : 'تم حذف السجل بنجاح من جدول المنظومة.',
+                timer: 2000,
+                showConfirmButton: false
+            });
         }
 
         // ==========================================
