@@ -673,8 +673,9 @@
                 localStorage.setItem('gemini_api_key', WORKING_API_KEY);
             }
             const currentWh = localStorage.getItem('google_webhook_url');
-            if (!currentWh || currentWh.includes('AKfycbw5IkNibxaV') || currentWh !== DEFAULT_WEBHOOK_URL) {
+            if (!currentWh || currentWh !== DEFAULT_WEBHOOK_URL) {
                 localStorage.setItem('google_webhook_url', DEFAULT_WEBHOOK_URL);
+                localStorage.removeItem('local_cached_records'); // Purge stale cache
             }
             if (!localStorage.getItem('branches_list')) {
                 localStorage.setItem('branches_list', DEFAULT_BRANCHES);
@@ -1529,7 +1530,7 @@
             row.created_at = new Date().toLocaleString('ar-EG');
             globalRecords.unshift(row);
             localStorage.setItem('local_cached_records', JSON.stringify(globalRecords.slice(0, 50)));
-            renderTable(globalRecords);
+            renderFilteredTable(globalRecords);
         }
 
         // WhatsApp Notification Dispatcher (Supports single or multiple numbers + auto format)
@@ -1599,7 +1600,7 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
         // LIVE FEED & PERMISSION FILTERING
         // ==========================================
         async function refreshLiveFeed() {
-            const webhookUrl = localStorage.getItem('google_webhook_url');
+            const webhookUrl = localStorage.getItem('google_webhook_url') || DEFAULT_WEBHOOK_URL;
             if (!webhookUrl) {
                 const cached = localStorage.getItem('local_cached_records');
                 if (cached) renderFilteredTable(JSON.parse(cached));
@@ -1607,14 +1608,20 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
             }
 
             try {
-                const res = await fetch(webhookUrl);
+                // Prevent browser HTTP cache by appending timestamp & cache no-store
+                const sep = webhookUrl.includes('?') ? '&' : '?';
+                const res = await fetch(webhookUrl + sep + 't=' + Date.now(), {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
                 const data = await res.json();
-                if (data.status === 'success' && data.records) {
+                if (data.status === 'success' && Array.isArray(data.records)) {
                     globalRecords = data.records;
                     localStorage.setItem('local_cached_records', JSON.stringify(globalRecords));
                     renderFilteredTable(globalRecords);
                 }
             } catch (e) {
+                console.warn('Live feed warning:', e);
                 const cached = localStorage.getItem('local_cached_records');
                 if (cached) renderFilteredTable(JSON.parse(cached));
             }
@@ -1736,7 +1743,7 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
             // Remove from local memory & cached records
             globalRecords = globalRecords.filter(r => String(r.id) !== String(recordId));
             localStorage.setItem('local_cached_records', JSON.stringify(globalRecords.slice(0, 50)));
-            renderTable(globalRecords);
+            renderFilteredTable(globalRecords);
 
             Swal.fire({
                 icon: 'success',
