@@ -1362,42 +1362,62 @@
         // ==========================================
         async function callGeminiVision(base64Image, promptText) {
             const apiKey = localStorage.getItem('gemini_api_key') || WORKING_API_KEY;
-            const model = "gemini-flash-lite-latest";
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            const modelsToTry = ["gemini-flash-lite-latest", "gemini-3.5-flash-lite"];
+            let lastError = null;
 
-            const payload = {
-                contents: [{
-                    parts: [
-                        { text: promptText },
-                        {
-                            inline_data: {
-                                mime_type: "image/jpeg",
-                                data: base64Image
+            for (const model of modelsToTry) {
+                for (let attempt = 1; attempt <= 2; attempt++) {
+                    try {
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                        const payload = {
+                            contents: [{
+                                parts: [
+                                    { text: promptText },
+                                    {
+                                        inline_data: {
+                                            mime_type: "image/jpeg",
+                                            data: base64Image
+                                        }
+                                    }
+                                ]
+                            }],
+                            generationConfig: {
+                                temperature: 0.0,
+                                response_mime_type: "application/json"
                             }
+                        };
+
+                        const response = await fetch(url, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.status === 503 || response.status === 429) {
+                            console.warn(`Gemini model ${model} attempt ${attempt} returned ${response.status}. Retrying after delay...`);
+                            await new Promise(r => setTimeout(r, 1200));
+                            continue; // Try next attempt or next model
                         }
-                    ]
-                }],
-                generationConfig: {
-                    temperature: 0.0,
-                    response_mime_type: "application/json"
+
+                        if (!response.ok) {
+                            const err = await response.text();
+                            throw new Error(`Gemini Error (${response.status}): ${err}`);
+                        }
+
+                        const result = await response.json();
+                        const text = result.candidates[0].content.parts[0].text.trim();
+                        const cleanJson = text.replace(/^```json\s*/, '').replace(/```\s*$/, '');
+                        return JSON.parse(cleanJson);
+
+                    } catch (e) {
+                        lastError = e;
+                        console.warn(`Attempt ${attempt} on ${model} failed:`, e.message);
+                        await new Promise(r => setTimeout(r, 1000));
+                    }
                 }
-            };
-
-            const response = await fetch(url, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                const err = await response.text();
-                throw new Error(`Gemini API Error (${response.status}): ${err}`);
             }
 
-            const result = await response.json();
-            const text = result.candidates[0].content.parts[0].text.trim();
-            const cleanJson = text.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-            return JSON.parse(cleanJson);
+            throw new Error(lastError ? lastError.message : "تعذر استدعاء الذكاء الاصطناعي، يرجى المحاولة مرة أخرى.");
         }
 
         async function processDualImages() {
@@ -1436,19 +1456,28 @@
 2. موديل الجهاز (device_model) المكتوب بعد MODEL: مثل ZTDX-EG8CH
 أرجع النتيجة بصيغة JSON فقط: {"serial_number": "...", "device_model": "..."}`;
 
-                const promises = [
-                    callGeminiVision(idBase64, promptId),
-                    callGeminiVision(devBase64, promptDev)
-                ];
+                // Sequential processing to prevent concurrency rate limits / 503 errors
+                Swal.update({
+                    html: '<div class="space-y-2 mt-2"><div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div><p class="text-xs text-indigo-300 font-bold">1/3 جاري قراءة بطاقة الرقم القومي المصرية...</p></div>'
+                });
+                const idData = await callGeminiVision(idBase64, promptId);
 
+                Swal.update({
+                    html: '<div class="space-y-2 mt-2"><div class="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto"></div><p class="text-xs text-violet-300 font-bold">2/3 جاري قراءة ماك وشاشة الجهاز...</p></div>'
+                });
+                const devData = await callGeminiVision(devBase64, promptDev);
+
+                let snData = null;
                 if (snBase64) {
-                    promises.push(callGeminiVision(snBase64, promptSn));
+                    Swal.update({
+                        html: '<div class="space-y-2 mt-2"><div class="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto"></div><p class="text-xs text-amber-300 font-bold">3/3 جاري قراءة استيكر السيريال والموديل...</p></div>'
+                    });
+                    snData = await callGeminiVision(snBase64, promptSn);
                 }
 
-                const results = await Promise.all(promises);
-                const idData = results[0];
-                const devData = results[1];
-                const snData = snBase64 ? results[2] : null;
+                Swal.update({
+                    html: '<div class="space-y-2 mt-2"><div class="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div><p class="text-xs text-emerald-300 font-bold">فحص سجلات الفروع والتحقق الأمني في Google Sheets...</p></div>'
+                });
 
                 document.getElementById('inputCustomerName').value = idData.customer_name || '';
                 document.getElementById('inputNationalId').value = (idData.national_id || '').replace(/[^0-9]/g, '');
