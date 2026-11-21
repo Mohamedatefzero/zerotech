@@ -323,6 +323,47 @@
                     </div>
                 </div>
 
+                <!-- Box 3: ZeroTech S/N & Model Barcode Sticker -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-bold text-amber-300">
+                            🏷️ 3. استيكر سيريال وموديل الجهاز (S/N)
+                        </label>
+                        <span class="text-xs text-slate-400 font-normal">استيكر الباركود والموديل</span>
+                    </div>
+
+                    <!-- Direct Action Buttons: Camera & Gallery -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="triggerCamera('sn')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/40 text-amber-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>📷 التقاط بالكاميرا</span>
+                        </button>
+                        <button type="button" onclick="triggerGallery('sn')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>🖼️ فتح المعرض / الصور</span>
+                        </button>
+                    </div>
+
+                    <!-- Hidden file inputs -->
+                    <input type="file" id="snCameraInput" accept="image/*" capture="environment" class="hidden">
+                    <input type="file" id="snGalleryInput" accept="image/*" class="hidden">
+
+                    <!-- DropZone Container -->
+                    <div id="snDropZone" class="upload-slot p-5 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[200px] relative overflow-hidden group">
+                        <div id="snPlaceholder" class="space-y-2 pointer-events-none">
+                            <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-3xl mx-auto group-hover:scale-110 transition">
+                                🏷️
+                            </div>
+                            <p class="text-sm font-bold text-slate-200">اضغط لفتح المعرض أو اسحب الصورة هنا</p>
+                            <p class="text-xs text-slate-500">أو استخدم أزرار الكاميرا والمعرض بالأعلى</p>
+                        </div>
+                        <div id="snPreviewContainer" class="hidden flex flex-col items-center gap-2.5 w-full">
+                            <img id="snPreviewImg" class="max-h-48 rounded-xl object-contain shadow-lg border border-slate-700" alt="معاينة استيكر السيريال">
+                            <button type="button" onclick="resetSlot('sn', event)" class="px-3.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/30 text-xs font-semibold transition">
+                                ❌ حذف واستبدال
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Analyze Action Button -->
@@ -425,7 +466,7 @@
                     <p class="text-xs text-slate-400" id="tableFilterSubtext">تحديث فوري للسجلات المسجلة</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="refreshLiveFeed()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 transition flex items-center gap-1.5">
+                    <button onclick="refreshLiveFeed(true)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 transition flex items-center gap-1.5">
                         <span>🔄 تحديث</span>
                     </button>
                     <!-- Export button: Hidden for Sales, visible for Manager & Master -->
@@ -1186,6 +1227,8 @@
         function triggerCamera(type) {
             if (type === 'id') {
                 document.getElementById('idCameraInput').click();
+            } else if (type === 'sn') {
+                document.getElementById('snCameraInput').click();
             } else {
                 document.getElementById('devCameraInput').click();
             }
@@ -1194,6 +1237,8 @@
         function triggerGallery(type) {
             if (type === 'id') {
                 document.getElementById('idGalleryInput').click();
+            } else if (type === 'sn') {
+                document.getElementById('snGalleryInput').click();
             } else {
                 document.getElementById('devGalleryInput').click();
             }
@@ -1210,6 +1255,12 @@
                 document.getElementById('idGalleryInput').value = '';
                 document.getElementById('idPlaceholder').classList.remove('hidden');
                 document.getElementById('idPreviewContainer').classList.add('hidden');
+            } else if (type === 'sn') {
+                snBase64 = null;
+                document.getElementById('snCameraInput').value = '';
+                document.getElementById('snGalleryInput').value = '';
+                document.getElementById('snPlaceholder').classList.remove('hidden');
+                document.getElementById('snPreviewContainer').classList.add('hidden');
             } else {
                 devBase64 = null;
                 document.getElementById('devCameraInput').value = '';
@@ -1303,6 +1354,8 @@
         function resetInputs() {
             resetSlot('id');
             resetSlot('dev');
+            resetSlot('sn');
+            document.getElementById('inputSerialNumber').value = '';
             document.getElementById('reviewSection').classList.add('hidden');
             document.getElementById('securityBanner').classList.add('hidden');
         }
@@ -1354,16 +1407,16 @@
             if (!idBase64 || !devBase64) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'الصورتان مطلوبتان معاً',
-                    text: 'يرجى اختيار صورة البطاقة الشخصية وصورة شاشة زيروتك معاً للربط بينهما.',
+                    title: 'صورة البطاقة وشاشة الجهاز مطلوبتان',
+                    text: 'يرجى اختيار صورة البطاقة الشخصية وصورة شاشة استرداد الباسورد معاً للربط بينهما، وصورة الاستيكر (إن وجدت).',
                     confirmButtonText: 'حسناً'
                 });
                 return;
             }
 
             Swal.fire({
-                title: 'جاري فحص الصورتين بالذكاء الاصطناعي...',
-                html: '<div class="space-y-2 mt-2"><div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div><p class="text-xs text-slate-400">قراءة البطاقة، ماك الجهاز، وفحص سجلات الفروع في Google Sheets</p></div>',
+                title: 'جاري فحص الصور بالذكاء الاصطناعي...',
+                html: '<div class="space-y-2 mt-2"><div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div><p class="text-xs text-slate-400">قراءة البطاقة، ماك الجهاز، استيكر السيريال، وفحص سجلات الفروع في Google Sheets</p></div>',
                 showConfirmButton: false,
                 allowOutsideClick: false
             });
@@ -1381,17 +1434,42 @@
 3. وقت وتاريخ الشاشة الحالي (device_time).
 أرجع النتيجة بصيغة JSON فقط: {"mac_address": "...", "device_model": "...", "device_time": "..."}`;
 
-                const [idData, devData] = await Promise.all([
+                const promptSn = `أنت خبير في قراءة استيكرات أجهزة كاميرات المراقبة DVR (ZeroTech / AOI). استخرج بدقة تامة:
+1. سيريال الجهاز التسلسلي (serial_number) المكتوب بعد S/N: بدقة تامة مثل ZTDX-EG8CH-400-7996
+2. موديل الجهاز (device_model) المكتوب بعد MODEL: مثل ZTDX-EG8CH
+أرجع النتيجة بصيغة JSON فقط: {"serial_number": "...", "device_model": "..."}`;
+
+                const promises = [
                     callGeminiVision(idBase64, promptId),
                     callGeminiVision(devBase64, promptDev)
-                ]);
+                ];
+
+                if (snBase64) {
+                    promises.push(callGeminiVision(snBase64, promptSn));
+                }
+
+                const results = await Promise.all(promises);
+                const idData = results[0];
+                const devData = results[1];
+                const snData = snBase64 ? results[2] : null;
 
                 document.getElementById('inputCustomerName').value = idData.customer_name || '';
                 document.getElementById('inputNationalId').value = (idData.national_id || '').replace(/[^0-9]/g, '');
                 document.getElementById('inputAddress').value = idData.address || '';
                 document.getElementById('inputMacAddress').value = (devData.mac_address || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-                document.getElementById('inputDeviceModel').value = devData.device_model || 'DxC';
+                
+                // Device model: preference from serial sticker if present, else DVR screen
+                if (snData && snData.device_model) {
+                    document.getElementById('inputDeviceModel').value = snData.device_model;
+                } else {
+                    document.getElementById('inputDeviceModel').value = devData.device_model || 'DxC';
+                }
+
                 document.getElementById('inputDeviceTime').value = devData.device_time || '';
+
+                if (snData && snData.serial_number) {
+                    document.getElementById('inputSerialNumber').value = snData.serial_number;
+                }
 
                 await performCrossCheck(document.getElementById('inputNationalId').value, document.getElementById('inputMacAddress').value);
 
@@ -1504,6 +1582,7 @@
             const customerName = document.getElementById('inputCustomerName').value.trim();
             const nationalId = document.getElementById('inputNationalId').value.trim();
             const macAddress = document.getElementById('inputMacAddress').value.trim();
+            const serialNumber = (document.getElementById('inputSerialNumber')?.value || '').trim();
             const deviceModel = document.getElementById('inputDeviceModel').value.trim();
             const deviceTime = document.getElementById('inputDeviceTime').value.trim();
             const branchName = document.getElementById('branchSelector').value;
@@ -1527,7 +1606,7 @@
                 didOpen: () => Swal.showLoading()
             });
 
-            const webhookUrl = localStorage.getItem('google_webhook_url');
+            const webhookUrl = localStorage.getItem('google_webhook_url') || DEFAULT_WEBHOOK_URL;
             const recordPayload = {
                 action: 'save',
                 branch_name: branchName,
@@ -1535,6 +1614,7 @@
                 customer_name: customerName,
                 national_id: nationalId,
                 mac_address: macAddress,
+                serial_number: serialNumber,
                 device_model: deviceModel,
                 device_time: deviceTime,
                 duplicate_confirm_note: note,
@@ -1637,7 +1717,7 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
         // ==========================================
         // LIVE FEED & PERMISSION FILTERING
         // ==========================================
-        async function refreshLiveFeed() {
+        async function refreshLiveFeed(isManual = false) {
             const webhookUrl = localStorage.getItem('google_webhook_url') || DEFAULT_WEBHOOK_URL;
             if (!webhookUrl) {
                 const cached = localStorage.getItem('local_cached_records');
@@ -1657,6 +1737,16 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
                     globalRecords = data.records;
                     localStorage.setItem('local_cached_records', JSON.stringify(globalRecords));
                     renderFilteredTable(globalRecords);
+                    if (isManual) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: `تم جلب ${data.records.length} معاملة من Google Sheets بنجاح!`,
+                            showConfirmButton: false,
+                            timer: 2500
+                        });
+                    }
                 }
             } catch (e) {
                 console.warn('Live feed warning:', e);
@@ -1680,7 +1770,11 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
         function renderTable(records) {
             const tbody = document.getElementById('recordsTableBody');
             if (!records || records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-500">لا توجد معاملات مسجلة حتى الآن.</td></tr>`;
+                let emptyMsg = 'لا توجد معاملات مسجلة حتى الآن في النظام.';
+                if (currentUser && (currentUser.role === 'sales' || currentUser.role === 'manager') && globalRecords.length > 0) {
+                    emptyMsg = `لا توجد معاملات مسجلة لـ (${currentUser.branch}) حتى الآن. (يوجد ${globalRecords.length} معاملة مسجلة في فروع أخرى تظهر لحساب المدير العام Master).`;
+                }
+                tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-400 font-semibold bg-slate-900/30">${emptyMsg}</td></tr>`;
                 return;
             }
 
