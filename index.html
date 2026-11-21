@@ -238,25 +238,25 @@
                 </div>
             </div>
 
-            <!-- Two Upload Boxes -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Three Upload Boxes (Compact & Elegantly Styled) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 
                 <!-- Box 1: Egyptian ID Card -->
-                <div class="space-y-3">
+                <div class="space-y-2 bg-slate-900/50 p-3 rounded-2xl border border-indigo-500/25 shadow-sm hover:border-indigo-500/40 transition">
                     <div class="flex items-center justify-between">
-                        <label class="block text-sm font-bold text-indigo-300">
-                            🪪 1. بطاقة الرقم القومي المصرية
+                        <label class="block text-xs font-bold text-indigo-300">
+                            🪪 1. بطاقة الرقم القومي
                         </label>
-                        <span class="text-xs text-slate-400 font-normal">تظهر الـ 14 رقم بوضوح</span>
+                        <span class="text-[10px] text-slate-400">14 رقم بوضوح</span>
                     </div>
 
                     <!-- Direct Action Buttons: Camera & Gallery -->
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="triggerCamera('id')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition active:scale-95 shadow-sm">
-                            <span>📷 التقاط بالكاميرا</span>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button type="button" onclick="triggerCamera('id')" class="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>📷 كاميرا</span>
                         </button>
-                        <button type="button" onclick="triggerGallery('id')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition active:scale-95 shadow-sm">
-                            <span>🖼️ فتح المعرض / الصور</span>
+                        <button type="button" onclick="triggerGallery('id')" class="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>🖼️ المعرض</span>
                         </button>
                     </div>
 
@@ -265,17 +265,16 @@
                     <input type="file" id="idGalleryInput" accept="image/*" class="hidden">
 
                     <!-- DropZone Container -->
-                    <div id="idDropZone" class="upload-slot p-5 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[200px] relative overflow-hidden group">
-                        <div id="idPlaceholder" class="space-y-2 pointer-events-none">
-                            <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-3xl mx-auto group-hover:scale-110 transition">
+                    <div id="idDropZone" class="upload-slot p-2 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[90px] relative overflow-hidden group">
+                        <div id="idPlaceholder" class="space-y-1 pointer-events-none">
+                            <div class="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center text-lg mx-auto group-hover:scale-110 transition">
                                 🪪
                             </div>
-                            <p class="text-sm font-bold text-slate-200">اضغط لفتح المعرض أو اسحب الصورة هنا</p>
-                            <p class="text-xs text-slate-500">أو استخدم أزرار الكاميرا والمعرض بالأعلى</p>
+                            <p class="text-xs font-bold text-slate-200">اضغط لفتح المعرض أو اسحب هنا</p>
                         </div>
-                        <div id="idPreviewContainer" class="hidden flex flex-col items-center gap-2.5 w-full">
-                            <img id="idPreviewImg" class="max-h-48 rounded-xl object-contain shadow-lg border border-slate-700" alt="معاينة البطاقة">
-                            <button type="button" onclick="resetSlot('id', event)" class="px-3.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/30 text-xs font-semibold transition">
+                        <div id="idPreviewContainer" class="hidden flex flex-col items-center gap-1.5 w-full">
+                            <img id="idPreviewImg" class="max-h-24 rounded-lg object-contain shadow border border-slate-700" alt="معاينة البطاقة">
+                            <button type="button" onclick="resetSlot('id', event)" class="px-2.5 py-0.5 rounded-md bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/30 text-[10px] font-semibold transition">
                                 ❌ حذف واستبدال
                             </button>
                         </div>
@@ -283,21 +282,21 @@
                 </div>
 
                 <!-- Box 2: ZeroTech DVR Screen -->
-                <div class="space-y-3">
+                <div class="space-y-2 bg-slate-900/50 p-3 rounded-2xl border border-violet-500/25 shadow-sm hover:border-violet-500/40 transition">
                     <div class="flex items-center justify-between">
-                        <label class="block text-sm font-bold text-violet-300">
-                            📺 2. شاشة استرداد كلمة المرور (ZeroTech)
+                        <label class="block text-xs font-bold text-violet-300">
+                            📺 2. شاشة استرداد الباسورد
                         </label>
-                        <span class="text-xs text-slate-400 font-normal">تظهر الماك ووقت الجهاز</span>
+                        <span class="text-[10px] text-slate-400">الماك وتاريخ الشاشة</span>
                     </div>
 
                     <!-- Direct Action Buttons: Camera & Gallery -->
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="triggerCamera('dev')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-violet-600/30 hover:bg-violet-600/50 border border-violet-500/40 text-violet-200 text-xs font-bold transition active:scale-95 shadow-sm">
-                            <span>📷 التقاط بالكاميرا</span>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button type="button" onclick="triggerCamera('dev')" class="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-violet-600/30 hover:bg-violet-600/50 border border-violet-500/40 text-violet-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>📷 كاميرا</span>
                         </button>
-                        <button type="button" onclick="triggerGallery('dev')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition active:scale-95 shadow-sm">
-                            <span>🖼️ فتح المعرض / الصور</span>
+                        <button type="button" onclick="triggerGallery('dev')" class="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>🖼️ المعرض</span>
                         </button>
                     </div>
 
@@ -306,17 +305,16 @@
                     <input type="file" id="devGalleryInput" accept="image/*" class="hidden">
 
                     <!-- DropZone Container -->
-                    <div id="devDropZone" class="upload-slot p-5 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[200px] relative overflow-hidden group">
-                        <div id="devPlaceholder" class="space-y-2 pointer-events-none">
-                            <div class="w-14 h-14 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-3xl mx-auto group-hover:scale-110 transition">
+                    <div id="devDropZone" class="upload-slot p-2 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[90px] relative overflow-hidden group">
+                        <div id="devPlaceholder" class="space-y-1 pointer-events-none">
+                            <div class="w-7 h-7 rounded-lg bg-violet-500/15 text-violet-400 flex items-center justify-center text-lg mx-auto group-hover:scale-110 transition">
                                 🖥️
                             </div>
-                            <p class="text-sm font-bold text-slate-200">اضغط لفتح المعرض أو اسحب الصورة هنا</p>
-                            <p class="text-xs text-slate-500">أو استخدم أزرار الكاميرا والمعرض بالأعلى</p>
+                            <p class="text-xs font-bold text-slate-200">اضغط لفتح المعرض أو اسحب هنا</p>
                         </div>
-                        <div id="devPreviewContainer" class="hidden flex flex-col items-center gap-2.5 w-full">
-                            <img id="devPreviewImg" class="max-h-48 rounded-xl object-contain shadow-lg border border-slate-700" alt="معاينة الشاشة">
-                            <button type="button" onclick="resetSlot('dev', event)" class="px-3.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/30 text-xs font-semibold transition">
+                        <div id="devPreviewContainer" class="hidden flex flex-col items-center gap-1.5 w-full">
+                            <img id="devPreviewImg" class="max-h-24 rounded-lg object-contain shadow border border-slate-700" alt="معاينة الشاشة">
+                            <button type="button" onclick="resetSlot('dev', event)" class="px-2.5 py-0.5 rounded-md bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/30 text-[10px] font-semibold transition">
                                 ❌ حذف واستبدال
                             </button>
                         </div>
@@ -324,21 +322,21 @@
                 </div>
 
                 <!-- Box 3: ZeroTech S/N & Model Barcode Sticker -->
-                <div class="space-y-3">
+                <div class="space-y-2 bg-slate-900/50 p-3 rounded-2xl border border-amber-500/25 shadow-sm hover:border-amber-500/40 transition">
                     <div class="flex items-center justify-between">
-                        <label class="block text-sm font-bold text-amber-300">
-                            🏷️ 3. استيكر سيريال وموديل الجهاز (S/N)
+                        <label class="block text-xs font-bold text-amber-300">
+                            🏷️ 3. استيكر السيريال والموديل
                         </label>
-                        <span class="text-xs text-slate-400 font-normal">استيكر الباركود والموديل</span>
+                        <span class="text-[10px] text-slate-400">الباركود والموديل</span>
                     </div>
 
                     <!-- Direct Action Buttons: Camera & Gallery -->
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="triggerCamera('sn')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/40 text-amber-200 text-xs font-bold transition active:scale-95 shadow-sm">
-                            <span>📷 التقاط بالكاميرا</span>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button type="button" onclick="triggerCamera('sn')" class="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/40 text-amber-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>📷 كاميرا</span>
                         </button>
-                        <button type="button" onclick="triggerGallery('sn')" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition active:scale-95 shadow-sm">
-                            <span>🖼️ فتح المعرض / الصور</span>
+                        <button type="button" onclick="triggerGallery('sn')" class="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition active:scale-95 shadow-sm">
+                            <span>🖼️ المعرض</span>
                         </button>
                     </div>
 
@@ -347,17 +345,16 @@
                     <input type="file" id="snGalleryInput" accept="image/*" class="hidden">
 
                     <!-- DropZone Container -->
-                    <div id="snDropZone" class="upload-slot p-5 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[200px] relative overflow-hidden group">
-                        <div id="snPlaceholder" class="space-y-2 pointer-events-none">
-                            <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-3xl mx-auto group-hover:scale-110 transition">
+                    <div id="snDropZone" class="upload-slot p-2 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer min-h-[90px] relative overflow-hidden group">
+                        <div id="snPlaceholder" class="space-y-1 pointer-events-none">
+                            <div class="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center text-lg mx-auto group-hover:scale-110 transition">
                                 🏷️
                             </div>
-                            <p class="text-sm font-bold text-slate-200">اضغط لفتح المعرض أو اسحب الصورة هنا</p>
-                            <p class="text-xs text-slate-500">أو استخدم أزرار الكاميرا والمعرض بالأعلى</p>
+                            <p class="text-xs font-bold text-slate-200">اضغط لفتح المعرض أو اسحب هنا</p>
                         </div>
-                        <div id="snPreviewContainer" class="hidden flex flex-col items-center gap-2.5 w-full">
-                            <img id="snPreviewImg" class="max-h-48 rounded-xl object-contain shadow-lg border border-slate-700" alt="معاينة استيكر السيريال">
-                            <button type="button" onclick="resetSlot('sn', event)" class="px-3.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/30 text-xs font-semibold transition">
+                        <div id="snPreviewContainer" class="hidden flex flex-col items-center gap-1.5 w-full">
+                            <img id="snPreviewImg" class="max-h-24 rounded-lg object-contain shadow border border-slate-700" alt="معاينة استيكر السيريال">
+                            <button type="button" onclick="resetSlot('sn', event)" class="px-2.5 py-0.5 rounded-md bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/30 text-[10px] font-semibold transition">
                                 ❌ حذف واستبدال
                             </button>
                         </div>
@@ -1726,12 +1723,9 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
             }
 
             try {
-                // Prevent browser HTTP cache by appending timestamp & cache no-store
+                // Append timestamp to prevent caching without triggering CORS preflight
                 const sep = webhookUrl.includes('?') ? '&' : '?';
-                const res = await fetch(webhookUrl + sep + 't=' + Date.now(), {
-                    cache: 'no-store',
-                    headers: { 'Cache-Control': 'no-cache' }
-                });
+                const res = await fetch(webhookUrl + sep + 't=' + Date.now());
                 const data = await res.json();
                 if (data.status === 'success' && Array.isArray(data.records)) {
                     globalRecords = data.records;
