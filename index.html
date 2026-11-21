@@ -215,9 +215,9 @@
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
                 <div>
                     <h2 class="text-lg md:text-xl font-bold text-white flex items-center gap-2">
-                        <span>📸 خطوة 1: التقاط / رفع الصورتين</span>
+                        <span>📸 خطوة 1: التقاط / رفع الصور الثلاث</span>
                     </h2>
-                    <p class="text-xs text-slate-400">التقط صورة البطاقة الشخصية وصورة شاشة استرداد الباسورد للـ DVR</p>
+                    <p class="text-xs text-slate-400">التقط صورة البطاقة، شاشة استرداد الباسورد، واستيكر سيريال وموديل الجهاز</p>
                 </div>
 
                 <!-- Branch & Employee Selector (Controlled by Permissions) -->
@@ -239,7 +239,7 @@
             </div>
 
             <!-- Two Upload Boxes -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
                 <!-- Box 1: Egyptian ID Card -->
                 <div class="space-y-3">
@@ -355,7 +355,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
                 <!-- Left: Customer Data -->
                 <div class="space-y-4 p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
@@ -387,8 +387,12 @@
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1">موديل الجهاز</label>
-                            <input id="inputDeviceModel" type="text" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold text-white" placeholder="DxC">
+                            <label class="block text-xs text-slate-400 mb-1">موديل الجهاز (Model)</label>
+                            <input id="inputDeviceModel" type="text" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-semibold text-white" placeholder="ZTDX-EG8CH">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">سيريال الجهاز (S/N)</label>
+                            <input id="inputSerialNumber" type="text" class="w-full glass-input px-3 py-2 rounded-xl text-xs font-mono font-bold text-emerald-400 uppercase" placeholder="ZTDX-EG8CH-400-7996">
                         </div>
                         <div>
                             <label class="block text-xs text-slate-400 mb-1">تاريخ ووقت الشاشة</label>
@@ -442,6 +446,7 @@
                             <th class="p-3.5">اسم العميل</th>
                             <th class="p-3.5">الرقم القومي</th>
                             <th class="p-3.5">ماك الجهاز (MAC)</th>
+                            <th class="p-3.5">سيريال الجهاز (S/N)</th>
                             <th class="p-3.5">موديل الجهاز</th>
                             <th class="p-3.5">تاريخ الشاشة</th>
                             <th class="p-3.5">الحالة الأمنية</th>
@@ -451,7 +456,7 @@
                     </thead>
                     <tbody id="recordsTableBody" class="divide-y divide-slate-800/60 font-medium">
                         <tr>
-                            <td colspan="11" class="p-8 text-center text-slate-500">
+                            <td colspan="12" class="p-8 text-center text-slate-500">
                                 جاري تحميل السجلات...
                             </td>
                         </tr>
@@ -659,6 +664,7 @@
         let currentUser = null;
         let idBase64 = null;
         let devBase64 = null;
+        let snBase64 = null;
         let currentSecurityStatus = null;
         let globalRecords = [];
 
@@ -1216,6 +1222,26 @@
         function setupDropZones() {
             const idZone = document.getElementById('idDropZone');
             const devZone = document.getElementById('devDropZone');
+            const snZone = document.getElementById('snDropZone');
+
+            if (snZone) {
+                snZone.addEventListener('click', () => triggerGallery('sn'));
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+                    snZone.addEventListener(ev, preventDefaults, false);
+                });
+                snZone.addEventListener('drop', (e) => {
+                    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0], 'sn');
+                });
+            }
+
+            const snCam = document.getElementById('snCameraInput');
+            if (snCam) snCam.addEventListener('change', (e) => {
+                if (e.target.files.length) handleFile(e.target.files[0], 'sn');
+            });
+            const snGal = document.getElementById('snGalleryInput');
+            if (snGal) snGal.addEventListener('change', (e) => {
+                if (e.target.files.length) handleFile(e.target.files[0], 'sn');
+            });
 
             idZone.addEventListener('click', () => triggerGallery('id'));
             devZone.addEventListener('click', () => triggerGallery('dev'));
@@ -1260,11 +1286,16 @@
                     document.getElementById('idPlaceholder').classList.add('hidden');
                     document.getElementById('idPreviewImg').src = dataUrl;
                     document.getElementById('idPreviewContainer').classList.remove('hidden');
-                } else {
+                } else if (type === 'dev') {
                     devBase64 = b64;
                     document.getElementById('devPlaceholder').classList.add('hidden');
                     document.getElementById('devPreviewImg').src = dataUrl;
                     document.getElementById('devPreviewContainer').classList.remove('hidden');
+                } else if (type === 'sn') {
+                    snBase64 = b64;
+                    document.getElementById('snPlaceholder').classList.add('hidden');
+                    document.getElementById('snPreviewImg').src = dataUrl;
+                    document.getElementById('snPreviewContainer').classList.remove('hidden');
                 }
             });
         }
@@ -1563,6 +1594,7 @@
 🔢 *الرقم القومي:* ${record.national_id}
 🖥️ *الموديل:* ${record.device_model}
 ⚡ *الماك (MAC):* ${record.mac_address}
+🏷️ *السيريال (S/N):* ${record.serial_number || '-'}
 🕒 *وقت الجهاز:* ${record.device_time}
 🛡️ *الحالة الأمنية:* ${record.security_status}
 ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_confirm_note : ''}`;
@@ -1648,7 +1680,7 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
         function renderTable(records) {
             const tbody = document.getElementById('recordsTableBody');
             if (!records || records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-500">لا توجد معاملات مسجلة حتى الآن.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-500">لا توجد معاملات مسجلة حتى الآن.</td></tr>`;
                 return;
             }
 
@@ -1673,7 +1705,8 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
                         <td class="p-3.5 text-slate-200">${r.customer_name || '-'}</td>
                         <td class="p-3.5 font-mono text-indigo-300">${r.national_id || '-'}</td>
                         <td class="p-3.5 font-mono text-violet-300 uppercase font-bold">${r.mac_address || '-'}</td>
-                        <td class="p-3.5 text-slate-300">${r.device_model || '-'}</td>
+                        <td class="p-3.5 font-mono text-emerald-400 font-bold">${r.serial_number || '-'}</td>
+                        <td class="p-3.5 text-slate-300 font-semibold">${r.device_model || '-'}</td>
                         <td class="p-3.5 font-mono text-xs text-slate-400">${r.device_time || '-'}</td>
                         <td class="p-3.5"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${badgeClass}">${r.security_status || 'سليم'}</span></td>
                         <td class="p-3.5 font-mono text-[11px] text-slate-500">${r.created_at || '-'}</td>
@@ -1779,9 +1812,9 @@ ${record.duplicate_confirm_note ? '📝 *ملاحظات:* ' + record.duplicate_c
                 return;
             }
 
-            let csv = '\uFEFFرقم العملية,الفرع,الموظف,اسم العميل,الرقم القومي,ماك الجهاز,موديل الجهاز,وقت الشاشة,الحالة الأمنية,تاريخ المعاملة\n';
+            let csv = '\uFEFFرقم العملية,الفرع,الموظف,اسم العميل,الرقم القومي,ماك الجهاز,سيريال الجهاز (S/N),موديل الجهاز,وقت الشاشة,الحالة الأمنية,تاريخ المعاملة\n';
             exportRecords.forEach(r => {
-                csv += `"${r.id}","${r.branch_name}","${r.employee_name}","${r.customer_name}","'${r.national_id}","'${r.mac_address}","${r.device_model}","${r.device_time}","${r.security_status}","${r.created_at}"\n`;
+                csv += `"${r.id}","${r.branch_name}","${r.employee_name}","${r.customer_name}","'${r.national_id}","'${r.mac_address}","'${r.serial_number || '-'}","${r.device_model}","${r.device_time}","${r.security_status}","${r.created_at}"\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
